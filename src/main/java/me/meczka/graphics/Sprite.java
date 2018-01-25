@@ -15,8 +15,8 @@ public class Sprite {
     }
     public void update(long elapsedTime)
     {
-        x+=velX*elapsedTime;
-        y+=velY*elapsedTime;
+    /*    x+=velX*elapsedTime;
+        y+=velY*elapsedTime;*/
         anim.update(elapsedTime);
     }
     public Image getImage()

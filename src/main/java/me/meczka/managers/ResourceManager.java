@@ -1,6 +1,7 @@
 package me.meczka.managers;
 
 import me.meczka.core.TileMap;
+import me.meczka.graphics.Animation;
 import me.meczka.items.Tile;
 
 import javax.swing.*;
@@ -15,7 +16,10 @@ import java.util.ArrayList;
  * Created by Chilik on 24.01.2018.
  */
 public class ResourceManager {
+    //obrazki kafelkow
     private Image a,b;
+    //obrazek playera
+    private Image player;
     private ArrayList<Tile> tiles;
     private TileMap map;
     private int mapnumber=0;
@@ -44,8 +48,8 @@ public class ResourceManager {
 
                     line = line.substring(1);
                     String parts[] = line.split(",");
-                    spawnx=Integer.parseInt(parts[0]);
-                    spawny=Integer.parseInt(parts[1]);
+                    spawnx=GameCalcuator.tilesToPixels(Integer.parseInt(parts[0]))+10;
+                    spawny=GameCalcuator.tilesToPixels(Integer.parseInt(parts[1]))+10;
 
                 } else {
                     lines.add(line);
@@ -88,7 +92,6 @@ public class ResourceManager {
     }
     public void loadTiles()
     {
-
         tiles.add(new Tile(a));
         tiles.add(new Tile(b,true));
     }
@@ -96,6 +99,13 @@ public class ResourceManager {
     {
         a =loadImage("a");
         b = loadImage("b");
+        player = loadImage("player");
+    }
+    public Animation createPlayerAnim()
+    {
+        Animation anim = new Animation();
+        anim.addFrame(player,50);
+        return anim;
     }
     public Image loadImage(String name)
     {
