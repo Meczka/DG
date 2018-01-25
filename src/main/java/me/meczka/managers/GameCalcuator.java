@@ -12,4 +12,5 @@ public class GameCalcuator {
     {
         return tiles*50;
     }
+
 }

@@ -113,8 +113,8 @@ public class Main extends GameCore {
         Tile tile = resourceManager.getMap().getTile(x1,y1);
         Tile tile1 = resourceManager.getMap().getTile(x2,y2);
         Tile tile2 = resourceManager.getMap().getTile(x2,y1);
-    //    Tile tile3 = resourceManager.getMap().getTile(y2,x1);
-        if(tile.isWalkable()&&tile1.isWalkable()&&tile2.isWalkable())
+        Tile tile3 = resourceManager.getMap().getTile(x1,y2);
+        if(tile.isWalkable()&&tile1.isWalkable()&&tile2.isWalkable()&&tile3.isWalkable())
         {
            return true;
         }

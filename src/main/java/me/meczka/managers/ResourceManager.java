@@ -2,7 +2,10 @@ package me.meczka.managers;
 
 import me.meczka.core.TileMap;
 import me.meczka.graphics.Animation;
+import me.meczka.items.Item;
 import me.meczka.items.Tile;
+import me.meczka.structures.Chest;
+import me.meczka.structures.Structure;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,12 +23,16 @@ public class ResourceManager {
     private Image a,b;
     //obrazek playera
     private Image player;
+    //obrazki struktur
+    private Image chestimg;
     private ArrayList<Tile> tiles;
+    private ArrayList<Structure> structures;
     private TileMap map;
     private int mapnumber=0;
     public ResourceManager()
     {
         tiles = new ArrayList<Tile>();
+        structures = new ArrayList<Structure>();
         loadImages();
         loadTiles();
         mapnumber++;
@@ -51,7 +58,21 @@ public class ResourceManager {
                     spawnx=GameCalcuator.tilesToPixels(Integer.parseInt(parts[0]))+10;
                     spawny=GameCalcuator.tilesToPixels(Integer.parseInt(parts[1]))+10;
 
-                } else {
+                }else if(line.startsWith("!"))
+                {
+                    line=line.substring(1);
+                    String[] parts = line.split(",");
+                    if(parts[0]=="chest")
+                    {
+                        Chest chest = new Chest(Integer.parseInt(parts[1]),Integer.parseInt(parts[2]),chestimg);
+                        for(int i=3;i<parts.length;i++)
+                        {
+                            if(parts[3]=="chleb")
+                        }
+
+                    }
+                }
+                else {
                     lines.add(line);
                     width = Math.max(width, line.length());
                 }
@@ -100,6 +121,7 @@ public class ResourceManager {
         a =loadImage("a");
         b = loadImage("b");
         player = loadImage("player");
+        chestimg = loadImage("chest";
     }
     public Animation createPlayerAnim()
     {
