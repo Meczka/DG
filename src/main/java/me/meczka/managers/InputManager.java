@@ -7,18 +7,21 @@ package me.meczka.managers;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 /**
  * Created by Chilik on 15.06.2017.
  */
-public class InputManager implements KeyListener {
+public class InputManager implements KeyListener, MouseListener {
     private Component comp;
     private static final int NUM_KEY_CODES = 600;
     private GameAction[] keyActions = new GameAction[NUM_KEY_CODES];
-
+    private GameAction mouseAction;
     public InputManager(Component comp) {
         this.comp = comp;
         comp.addKeyListener(this);
+        comp.addMouseListener(this);
         comp.setFocusTraversalKeysEnabled(true);
         setInvisibleCursor();
     }
@@ -33,6 +36,10 @@ public class InputManager implements KeyListener {
             gameAction.press();
         }
         e.consume();
+    }
+    public void setMouseAction(GameAction action)
+    {
+        mouseAction=action;
     }
 
     public void keyReleased(KeyEvent e) {
@@ -83,4 +90,31 @@ public class InputManager implements KeyListener {
         }
     }
 
+    public void mouseClicked(MouseEvent e) {
+
+    }
+
+    public void mousePressed(MouseEvent e) {
+        if(mouseAction!=null)
+        {
+            mouseAction.press();
+            mouseAction.setMousePressX(e.getX());
+            mouseAction.setMousePressY(e.getY());
+        }
+    }
+
+    public void mouseReleased(MouseEvent e) {
+        if(mouseAction!=null)
+        {
+            mouseAction.release();
+        }
+    }
+
+    public void mouseEntered(MouseEvent e) {
+
+    }
+
+    public void mouseExited(MouseEvent e) {
+
+    }
 }

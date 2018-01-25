@@ -2,6 +2,8 @@ package me.meczka.managers;
 
 import me.meczka.core.TileMap;
 import me.meczka.graphics.Animation;
+import me.meczka.interfaces.Openable;
+import me.meczka.items.Chleb;
 import me.meczka.items.Item;
 import me.meczka.items.Tile;
 import me.meczka.structures.Chest;
@@ -25,18 +27,30 @@ public class ResourceManager {
     private Image player;
     //obrazki struktur
     private Image chestimg;
+    //obrazki przedmiotow
+    private Image chlebimg;
     private ArrayList<Tile> tiles;
     private ArrayList<Structure> structures;
+    private ArrayList<Openable> openables;
     private TileMap map;
     private int mapnumber=0;
     public ResourceManager()
     {
         tiles = new ArrayList<Tile>();
         structures = new ArrayList<Structure>();
+        openables = new ArrayList<Openable>();
         loadImages();
         loadTiles();
         mapnumber++;
         map=loadMap(mapnumber);
+    }
+    public ArrayList getStructures()
+    {
+        return structures;
+    }
+    public ArrayList getOpenables()
+    {
+        return openables;
     }
     public TileMap loadMap(int number)
     {
@@ -62,14 +76,18 @@ public class ResourceManager {
                 {
                     line=line.substring(1);
                     String[] parts = line.split(",");
-                    if(parts[0]=="chest")
+                    if(parts[0].equalsIgnoreCase("chest"))
                     {
                         Chest chest = new Chest(Integer.parseInt(parts[1]),Integer.parseInt(parts[2]),chestimg);
                         for(int i=3;i<parts.length;i++)
                         {
                             if(parts[3]=="chleb")
+                            {
+                                chest.addItem(new Chleb(chlebimg));
+                            }
                         }
-
+                        structures.add(chest);
+                        openables.add(chest);
                     }
                 }
                 else {
@@ -121,7 +139,8 @@ public class ResourceManager {
         a =loadImage("a");
         b = loadImage("b");
         player = loadImage("player");
-        chestimg = loadImage("chest";
+        chestimg = loadImage("chest");
+        chlebimg = loadImage("chleb");
     }
     public Animation createPlayerAnim()
     {

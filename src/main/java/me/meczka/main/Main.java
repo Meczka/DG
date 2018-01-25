@@ -3,6 +3,7 @@ package me.meczka.main;
 import me.meczka.core.GameCore;
 import me.meczka.core.TileMap;
 import me.meczka.graphics.Sprite;
+import me.meczka.interfaces.Openable;
 import me.meczka.items.Tile;
 import me.meczka.managers.GameAction;
 import me.meczka.managers.GameCalcuator;
@@ -10,9 +11,13 @@ import me.meczka.managers.InputManager;
 import me.meczka.managers.ResourceManager;
 import me.meczka.sprites.Creature;
 import me.meczka.sprites.Player;
+import me.meczka.structures.Structure;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * Created by Chilik on 24.01.2018.
@@ -20,7 +25,7 @@ import java.awt.event.KeyEvent;
 public class Main extends GameCore {
     private InputManager input;
     private ResourceManager resourceManager;
-    private GameAction przod,lewo,prawo,tyl;
+    private GameAction przod,lewo,prawo,tyl,myszka;
     private Player player;
     public static void main(String[] args) {
         new Main().run();
@@ -48,6 +53,15 @@ public class Main extends GameCore {
             }
         }
         g.drawImage(player.getImage(),(int)player.getX(),(int)player.getY(),null);
+        ArrayList structures=resourceManager.getStructures();
+        /*Structure test = (Structure)structures.get(0);
+        System.out.println(test.getX());*/
+        Iterator iterator = structures.iterator();
+        while(iterator.hasNext())
+        {
+            Structure s = (Structure) iterator.next();
+            g.drawImage(s.getImage(),GameCalcuator.tilesToPixels(s.getX())+10,GameCalcuator.tilesToPixels(s.getY())+10,null);
+        }
         g.dispose();
     }
     public void createGameActions(){
@@ -55,10 +69,12 @@ public class Main extends GameCore {
         lewo = new GameAction("lewo");
         prawo = new GameAction("prawo");
         tyl = new GameAction("tyl");
+        myszka = new GameAction("myszka",GameAction.DETECT_INITAL_PRESS_ONLY);
         input.mapToKey(przod, KeyEvent.VK_W);
         input.mapToKey(lewo,KeyEvent.VK_A);
         input.mapToKey(prawo,KeyEvent.VK_D);
         input.mapToKey(tyl,KeyEvent.VK_S);
+        input.setMouseAction(myszka);
     }
     public void update(long elapsedTime)
     {
@@ -91,6 +107,23 @@ public class Main extends GameCore {
         else
         {
             player.setVelX(0f);
+        }
+        if(myszka.isPressed())
+        {
+            System.out.println("in");
+            int x=myszka.getMousePressX();
+            int y=myszka.getMousePressY();
+            Iterator iterator= resourceManager.getOpenables().iterator();
+            while(iterator.hasNext())
+            {
+                Openable openable = (Openable) iterator.next();
+                int ox = GameCalcuator.tilesToPixels(openable.getX())+10;
+                int oy = GameCalcuator.tilesToPixels(openable.getY())+10;
+                if(x>=ox&&y>=oy&&x<=ox+30&y<=oy+30)
+                {
+                    System.out.println("open!!!");
+                }
+            }
         }
     }
     public void updateCreature(Creature creature,long elapsedTime)

@@ -20,6 +20,25 @@ public class GameAction {
     private static final int STATE_RELEASED = 0;
     private static final int STATE_PRESSED = 1;
     private static final int STATE_WAITING_FOR_RELEASE = 2;
+    private int mousePressX;
+
+    public int getMousePressX() {
+        return mousePressX;
+    }
+
+    public void setMousePressX(int mousePressX) {
+        this.mousePressX = mousePressX;
+    }
+
+    public int getMousePressY() {
+        return MousePressY;
+    }
+
+    public void setMousePressY(int mousePressY) {
+        MousePressY = mousePressY;
+    }
+
+    private int MousePressY;
 
     private String name;
     private int behavior;
