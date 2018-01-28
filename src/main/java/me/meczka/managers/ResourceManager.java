@@ -16,6 +16,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * Created by Chilik on 24.01.2018.
@@ -81,7 +82,7 @@ public class ResourceManager {
                         Chest chest = new Chest(Integer.parseInt(parts[1]),Integer.parseInt(parts[2]),chestimg);
                         for(int i=3;i<parts.length;i++)
                         {
-                            if(parts[3]=="chleb")
+                            if(parts[3].equalsIgnoreCase("chleb"))
                             {
                                 chest.addItem(new Chleb(chlebimg));
                             }
@@ -114,6 +115,7 @@ public class ResourceManager {
             return map;
         } catch (FileNotFoundException e) {
             System.out.println("Nie odnaleziono pliku");
+            e.printStackTrace();
         }catch(IOException e)
         {
             e.printStackTrace();
@@ -147,6 +149,22 @@ public class ResourceManager {
         Animation anim = new Animation();
         anim.addFrame(player,50);
         return anim;
+    }
+    public void generateInventory(ArrayList<Item> inventory , Graphics2D g)
+    {
+
+        int offset=100;
+        for(int i=0;i<inventory.size();i++)
+        {
+            g.setColor(Color.GRAY);
+            g.fillRect(100,offset,300,50);
+            Item item = inventory.get(i);
+            g.setColor(Color.black);
+            g.drawImage(item.getIcon(),110,offset+10,null);
+            g.drawString(item.getName(),150,offset+40);
+            offset+=50;
+        }
+
     }
     public Image loadImage(String name)
     {

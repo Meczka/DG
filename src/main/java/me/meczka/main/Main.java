@@ -4,6 +4,7 @@ import me.meczka.core.GameCore;
 import me.meczka.core.TileMap;
 import me.meczka.graphics.Sprite;
 import me.meczka.interfaces.Openable;
+import me.meczka.items.Item;
 import me.meczka.items.Tile;
 import me.meczka.managers.GameAction;
 import me.meczka.managers.GameCalcuator;
@@ -26,6 +27,8 @@ public class Main extends GameCore {
     private InputManager input;
     private ResourceManager resourceManager;
     private GameAction przod,lewo,prawo,tyl,myszka;
+    private boolean isInventoryOpened = false;
+    private ArrayList<Item> openInventory;
     private Player player;
     public static void main(String[] args) {
         new Main().run();
@@ -61,6 +64,10 @@ public class Main extends GameCore {
         {
             Structure s = (Structure) iterator.next();
             g.drawImage(s.getImage(),GameCalcuator.tilesToPixels(s.getX())+10,GameCalcuator.tilesToPixels(s.getY())+10,null);
+        }
+        if(isInventoryOpened)
+        {
+            resourceManager.generateInventory(openInventory,g);
         }
         g.dispose();
     }
@@ -121,7 +128,18 @@ public class Main extends GameCore {
                 int oy = GameCalcuator.tilesToPixels(openable.getY())+10;
                 if(x>=ox&&y>=oy&&x<=ox+30&y<=oy+30)
                 {
-                    System.out.println("open!!!");
+                    int px = (int)GameCalcuator.pixelsToTiles((int)player.getX());
+                    int py = (int)GameCalcuator.pixelsToTiles((int)player.getY());
+
+                    int openx = openable.getX();
+                    int openy = openable.getY();
+                    int resx,resy;
+                    resx = Math.min(openx,px)-Math.max(openx,px);
+                    resy = Math.min(openy,py)-Math.max(openy,py);
+                    if(resx==-1||resx==0&&resy==0||resy==-1) {
+                        isInventoryOpened = true;
+                        openInventory = openable.getInventory();
+                    }
                 }
             }
         }
