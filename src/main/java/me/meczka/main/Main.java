@@ -45,6 +45,7 @@ public class Main extends GameCore {
     }
     public void draw(Graphics2D g){
         TileMap map = resourceManager.getMap();
+        g.fillRect(0,0,1920,1200);
         for(int y=0;y<map.getHeight();y++)
         {
             for(int x=0;x<map.getWidth();x++)
