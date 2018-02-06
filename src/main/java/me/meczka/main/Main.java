@@ -26,7 +26,7 @@ import java.util.Iterator;
 public class Main extends GameCore {
     private InputManager input;
     private ResourceManager resourceManager;
-    private GameAction przod,lewo,prawo,tyl,myszka;
+    private GameAction przod,lewo,prawo,tyl,myszka,ekwipunek,esc;
     private boolean isInventoryOpened = false;
     private ArrayList<Item> openInventory;
     private Player player;
@@ -39,6 +39,7 @@ public class Main extends GameCore {
         input = new InputManager(screen.getFullScreenWindow());
         resourceManager = new ResourceManager();
         player=new Player(resourceManager.createPlayerAnim());
+        resourceManager.loadStartingPlayerInv(player);
         player.setX(resourceManager.getMap().getSpawnX());
         player.setY(resourceManager.getMap().getSpawnY());
         createGameActions();
@@ -78,10 +79,16 @@ public class Main extends GameCore {
         prawo = new GameAction("prawo");
         tyl = new GameAction("tyl");
         myszka = new GameAction("myszka",GameAction.DETECT_INITAL_PRESS_ONLY);
+        ekwipunek=new GameAction("inventory",GameAction.DETECT_INITAL_PRESS_ONLY);
+        esc = new GameAction("escape",GameAction.DETECT_INITAL_PRESS_ONLY);
+        //klawisze
         input.mapToKey(przod, KeyEvent.VK_W);
         input.mapToKey(lewo,KeyEvent.VK_A);
         input.mapToKey(prawo,KeyEvent.VK_D);
         input.mapToKey(tyl,KeyEvent.VK_S);
+        input.mapToKey(ekwipunek,KeyEvent.VK_E);
+        input.mapToKey(esc,KeyEvent.VK_ESCAPE);
+        //myszka
         input.setMouseAction(myszka);
     }
     public void update(long elapsedTime)
@@ -118,7 +125,6 @@ public class Main extends GameCore {
         }
         if(myszka.isPressed())
         {
-            System.out.println("in");
             int x=myszka.getMousePressX();
             int y=myszka.getMousePressY();
             Iterator iterator= resourceManager.getOpenables().iterator();
@@ -143,6 +149,15 @@ public class Main extends GameCore {
                     }
                 }
             }
+        }
+        if(ekwipunek.isPressed())
+        {
+            isInventoryOpened=true;
+            openInventory=player.getInventory();
+        }
+        if(esc.isPressed())
+        {
+            
         }
     }
     public void updateCreature(Creature creature,long elapsedTime)
