@@ -1,6 +1,7 @@
 package me.meczka.items;
 
 import me.meczka.interfaces.Eatable;
+import me.meczka.managers.ResourceManager;
 
 import java.awt.*;
 
@@ -10,7 +11,7 @@ import java.awt.*;
 public class Chleb extends Item implements Eatable {
     public Chleb(Image img)
     {
-        super("Chleb",img,1);
+        super("Chleb",img,ResourceManager.itemsInfo.get("chleb").getInt("weight"),ResourceManager.itemsInfo.get("chleb").getString("description"));
     }
 
     public int getFoodPoints() {

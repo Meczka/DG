@@ -27,7 +27,7 @@ public class Main extends GameCore {
     private InputManager input;
     private ResourceManager resourceManager;
     private GameAction przod,lewo,prawo,tyl,myszka,ekwipunek,esc;
-    private boolean isInventoryOpened = false;
+    private boolean isInventoryOpened = false,isInfoOpened = false;
     private ArrayList<Item> openInventory;
     private Player player;
     public static void main(String[] args) {
@@ -70,6 +70,10 @@ public class Main extends GameCore {
         if(isInventoryOpened)
         {
             resourceManager.generateInventory(openInventory,g);
+        }
+        if(isInfoOpened)
+        {
+            resourceManager.generateInfo(g);
         }
         g.dispose();
     }
@@ -127,6 +131,23 @@ public class Main extends GameCore {
         {
             int x=myszka.getMousePressX();
             int y=myszka.getMousePressY();
+            System.out.println("press x: " + x+ " press y: "+y);
+            if(isInventoryOpened)
+            {
+                int index = resourceManager.getIndexByPixels(x,y);
+                if(index!=-1)
+                {
+                    if(openInventory!=player.getInventory()) {
+                        player.getInventory().add(openInventory.get(index));
+                        openInventory.remove(index);
+                    }
+                    else
+                    {
+                        resourceManager.generateInfo(openInventory.get(index),index);
+                        isInfoOpened=true;
+                    }
+                }
+            }
             Iterator iterator= resourceManager.getOpenables().iterator();
             while(iterator.hasNext())
             {
@@ -157,7 +178,11 @@ public class Main extends GameCore {
         }
         if(esc.isPressed())
         {
-            
+            if(isInventoryOpened)
+            {
+                isInventoryOpened=false;
+                openInventory=null;
+            }
         }
     }
     public void updateCreature(Creature creature,long elapsedTime)

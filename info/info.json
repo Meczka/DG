@@ -1,0 +1,10 @@
+{
+  "items":[
+    {
+      "name":"chleb",
+      "description":"Dodaje 2 punkty jedzenia",
+      "weight":1
+    }
+
+  ]
+}

@@ -13,9 +13,13 @@ import java.util.ArrayList;
 public class Player extends Creature    {
     private int hunger = 10;
     private int health = 20;
+    private ArrayList inventory;
     public Player(Animation anim)
     {
+
         super(anim);
+        inventory = new ArrayList();
+
     }
 
     public int getHealth() {
@@ -31,7 +35,7 @@ public class Player extends Creature    {
     }
 
     public ArrayList getInventory() {
-        return null;
+        return inventory;
     }
 
     public void transferItem(int index, ArrayList<Item> inventory) {
@@ -39,7 +43,7 @@ public class Player extends Creature    {
     }
 
     public void addItem(Item item) {
-
+        inventory.add(item);
     }
 
     public void getItem(int index) {
