@@ -178,7 +178,11 @@ public class Main extends GameCore {
         }
         if(esc.isPressed())
         {
-            if(isInventoryOpened)
+            if(isInfoOpened)
+            {
+                isInfoOpened=false;
+            }
+            else if(isInventoryOpened)
             {
                 isInventoryOpened=false;
                 openInventory=null;

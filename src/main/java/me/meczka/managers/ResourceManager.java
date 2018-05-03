@@ -34,6 +34,8 @@ public class ResourceManager {
     private Image chestimg;
     //obrazki przedmiotow
     private Image chlebimg;
+    //obrazki przyciskow
+    private Image button_zjedz,button_wyrzuc;
     private ArrayList<Tile> tiles;
     private ArrayList<Structure> structures;
     private ArrayList<Openable> openables;
@@ -172,6 +174,8 @@ public class ResourceManager {
         player = loadImage("player");
         chestimg = loadImage("chest");
         chlebimg = loadImage("chleb");
+        button_zjedz = loadImage("button_zjedz");
+        button_wyrzuc = loadImage("button_wyrzuc");
     }
 
     public Animation createPlayerAnim() {
@@ -201,15 +205,26 @@ public class ResourceManager {
     }
     public void generateInfo(Graphics2D g)
     {
+        int leftOffset=300;
         int offset = 100+(infoIndex*50);
         g.setColor(Color.GRAY);
-        g.fillRect(300,offset,300,100);
+        g.fillRect(leftOffset,offset,300,100);
         g.setColor(Color.black);
-        g.drawString(infoItem.getDescription(),300,offset+20);
-        g.drawString("Waga: "+infoItem.getWeight(),300,offset+40);
+        g.drawString(infoItem.getDescription(),leftOffset,offset+20);
+        g.drawString("Waga: "+infoItem.getWeight(),leftOffset,offset+40);
+        offset+=40;
+
+
         if(infoItem instanceof Eatable)
         {
-            
+            g.drawString("Punkty jedzenia: "+ ((Eatable) infoItem).getFoodPoints(),300,offset+20);
+            offset+=20;
+        }
+        //rysowanie buttonow
+        g.drawImage(button_wyrzuc,leftOffset,offset+20,null);
+        leftOffset+=100;
+        if(infoItem instanceof Eatable) {
+            g.drawImage(button_zjedz, leftOffset, offset + 20, null);
         }
     }
     public int getIndexByPixels(int x,int y)

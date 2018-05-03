@@ -15,6 +15,6 @@ public class Chleb extends Item implements Eatable {
     }
 
     public int getFoodPoints() {
-        return 2;
+        return ResourceManager.itemsInfo.get("chleb").getInt("food_points");
     }
 }
