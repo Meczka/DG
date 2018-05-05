@@ -13,7 +13,7 @@ import me.meczka.managers.ResourceManager;
 import me.meczka.sprites.Creature;
 import me.meczka.sprites.Player;
 import me.meczka.structures.Structure;
-
+import me.meczka.utils.Button;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -67,13 +67,20 @@ public class Main extends GameCore {
             Structure s = (Structure) iterator.next();
             g.drawImage(s.getImage(),GameCalcuator.tilesToPixels(s.getX())+10,GameCalcuator.tilesToPixels(s.getY())+10,null);
         }
+        ArrayList buttons = (ArrayList) resourceManager.getButtons();
+
         if(isInventoryOpened)
         {
             resourceManager.generateInventory(openInventory,g);
         }
-        if(isInfoOpened)
+        if(resourceManager.isInfoOpened())
         {
             resourceManager.generateInfo(g);
+        }
+        for(int i=0;i<buttons.size();i++)
+        {
+            Button button = (Button) buttons.get(i);
+            g.drawImage(button.getImg(),button.getX(),button.getY(),null);
         }
         g.dispose();
     }
@@ -101,7 +108,7 @@ public class Main extends GameCore {
         updateCreature(player,elapsedTime);
         player.update(elapsedTime);
     }
-    public void chceckInput()
+    public synchronized void chceckInput()
     {
         if(przod.isPressed())
         {
@@ -143,9 +150,17 @@ public class Main extends GameCore {
                     }
                     else
                     {
-                        resourceManager.generateInfo(openInventory.get(index),index);
-                        isInfoOpened=true;
+                        resourceManager.generateInfo(openInventory.get(index),index,player.getInventory());
+                        resourceManager.setInfoOpened(true);
                     }
+                }
+            }
+            ArrayList<Button> buttons = (ArrayList) resourceManager.getButtons();
+            for(int i=0;i<buttons.size();i++)
+            {
+                if(x>buttons.get(i).getX()&&x<buttons.get(i).getX()+100&&y>buttons.get(i).getY()&&y<buttons.get(i).getY()+30)
+                {
+                    buttons.get(i).run();
                 }
             }
             Iterator iterator= resourceManager.getOpenables().iterator();
@@ -178,9 +193,17 @@ public class Main extends GameCore {
         }
         if(esc.isPressed())
         {
-            if(isInfoOpened)
+            if(resourceManager.isInfoOpened())
             {
-                isInfoOpened=false;
+                resourceManager.setInfoOpened(false);
+                ArrayList<Button> buttons =(ArrayList<Button>) resourceManager.getButtons();
+                for(int i=0;i<buttons.size();i++)
+                {
+                    if(buttons.get(i).getType()==Button.TYPE_INFO)
+                    {
+                        buttons.remove(i);
+                    }
+                }
             }
             else if(isInventoryOpened)
             {

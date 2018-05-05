@@ -11,10 +11,10 @@ import me.meczka.items.Tile;
 import me.meczka.sprites.Player;
 import me.meczka.structures.Chest;
 import me.meczka.structures.Structure;
+import me.meczka.utils.ItemButton;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import sun.nio.cs.StandardCharsets;
-
+import me.meczka.utils.Button;
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
@@ -34,11 +34,14 @@ public class ResourceManager {
     private Image chestimg;
     //obrazki przedmiotow
     private Image chlebimg;
+    private boolean isInfoOpened=false;
     //obrazki przyciskow
     private Image button_zjedz,button_wyrzuc;
+    //Listy
     private ArrayList<Tile> tiles;
     private ArrayList<Structure> structures;
     private ArrayList<Openable> openables;
+    private List<Button> buttons;
     private TileMap map;
     private int infoIndex;
     private Item infoItem;
@@ -48,11 +51,20 @@ public class ResourceManager {
         tiles = new ArrayList<Tile>();
         structures = new ArrayList<Structure>();
         openables = new ArrayList<Openable>();
+        buttons = new ArrayList<Button>();
         loadImages();
         loadTiles();
         loadInfo();
         mapnumber++;
         map = loadMap(mapnumber);
+    }
+
+    public boolean isInfoOpened() {
+        return isInfoOpened;
+    }
+
+    public void setInfoOpened(boolean infoOpened) {
+        isInfoOpened = infoOpened;
     }
 
     public void loadStartingPlayerInv(Player player) {
@@ -198,10 +210,28 @@ public class ResourceManager {
         }
 
     }
-    public void generateInfo(Item item,int index)
+    public void generateInfo(Item item,int index,ArrayList<Item> inventory)
     {
         infoIndex=index;
         infoItem=item;
+        int leftOffset=300;
+        int offset = 100+(infoIndex*50);
+        offset+=60;
+        buttons.add(new ItemButton(button_wyrzuc,infoItem,leftOffset,offset+20,Button.TYPE_INFO,()->{
+            inventory.remove(item);
+            isInfoOpened=false;
+            for(int i=0;i<buttons.size();i++)
+            {
+                if(buttons.get(i).getType()==Button.TYPE_INFO)
+                {
+                    buttons.remove(i);
+                }
+            }
+        }));
+        leftOffset+=100;
+        if(infoItem instanceof Eatable) {
+            //buttons.add(new ItemButton(button_zjedz,infoItem,leftOffset,offset+20,Button.TYPE_INFO));
+        }
     }
     public void generateInfo(Graphics2D g)
     {
@@ -221,11 +251,12 @@ public class ResourceManager {
             offset+=20;
         }
         //rysowanie buttonow
-        g.drawImage(button_wyrzuc,leftOffset,offset+20,null);
-        leftOffset+=100;
-        if(infoItem instanceof Eatable) {
-            g.drawImage(button_zjedz, leftOffset, offset + 20, null);
-        }
+
+
+    }
+    public List<Button> getButtons()
+    {
+        return buttons;
     }
     public int getIndexByPixels(int x,int y)
     {

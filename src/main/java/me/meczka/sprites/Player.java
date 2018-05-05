@@ -11,7 +11,7 @@ import java.util.ArrayList;
  * Created by Chilik on 25.01.2018.
  */
 public class Player extends Creature    {
-    private int hunger = 10;
+    private int foodPoints = 10;
     private int health = 20;
     private ArrayList inventory;
     public Player(Animation anim)
@@ -31,7 +31,7 @@ public class Player extends Creature    {
     }
     public void eat(Eatable meal)
     {
-        hunger+=meal.getFoodPoints();
+        foodPoints+=meal.getFoodPoints();
     }
 
     public ArrayList getInventory() {
