@@ -145,13 +145,17 @@ public class Main extends GameCore {
                 if(index!=-1)
                 {
                     if(openInventory!=player.getInventory()) {
-                        player.getInventory().add(openInventory.get(index));
-                        openInventory.remove(index);
+                            player.getInventory().add(openInventory.get(index));
+                            openInventory.remove(index);
                     }
                     else
                     {
-                        resourceManager.generateInfo(openInventory.get(index),index,this);
-                        resourceManager.setInfoOpened(true);
+                        System.out.println(index);
+                        System.out.println(openInventory.size());
+                        if(openInventory.size()!=0&&index<openInventory.size()) {
+                            resourceManager.generateInfo(openInventory.get(index), index, this);
+                            resourceManager.setInfoOpened(true);
+                        }
                     }
                 }
             }
