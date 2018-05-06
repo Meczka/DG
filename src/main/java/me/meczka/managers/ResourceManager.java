@@ -8,10 +8,10 @@ import me.meczka.interfaces.Openable;
 import me.meczka.items.Chleb;
 import me.meczka.items.Item;
 import me.meczka.items.Tile;
+import me.meczka.main.Main;
 import me.meczka.sprites.Player;
 import me.meczka.structures.Chest;
 import me.meczka.structures.Structure;
-import me.meczka.utils.ItemButton;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import me.meczka.utils.Button;
@@ -210,26 +210,29 @@ public class ResourceManager {
         }
 
     }
-    public void generateInfo(Item item,int index,ArrayList<Item> inventory)
+    public void generateInfo(Item item,int index,Main main)
     {
         infoIndex=index;
         infoItem=item;
         int leftOffset=300;
         int offset = 100+(infoIndex*50);
         offset+=60;
-        buttons.add(new ItemButton(button_wyrzuc,infoItem,leftOffset,offset+20,Button.TYPE_INFO,()->{
-            inventory.remove(item);
+        buttons.add(new Button(button_wyrzuc,leftOffset,offset+20,Button.TYPE_INFO,()->{
+            main.player.getInventory().remove(item);
             isInfoOpened=false;
-            for(int i=0;i<buttons.size();i++)
-            {
-                if(buttons.get(i).getType()==Button.TYPE_INFO)
-                {
-                    buttons.remove(i);
-                }
-            }
+            Button.removeAllButtonsOfType((ArrayList<Button>) buttons,Button.TYPE_INFO);
+
         }));
         leftOffset+=100;
         if(infoItem instanceof Eatable) {
+            buttons.add(new Button(button_zjedz,leftOffset,offset+20,Button.TYPE_INFO,()->
+            {
+                main.player.eat((Eatable) item);
+                main.player.getInventory().remove(item);
+                Button.removeAllButtonsOfType((ArrayList<Button>)buttons,Button.TYPE_INFO);
+                isInfoOpened=false;
+            }
+            ));
             //buttons.add(new ItemButton(button_zjedz,infoItem,leftOffset,offset+20,Button.TYPE_INFO));
         }
     }

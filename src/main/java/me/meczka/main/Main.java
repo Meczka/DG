@@ -29,7 +29,7 @@ public class Main extends GameCore {
     private GameAction przod,lewo,prawo,tyl,myszka,ekwipunek,esc;
     private boolean isInventoryOpened = false,isInfoOpened = false;
     private ArrayList<Item> openInventory;
-    private Player player;
+    public Player player;
     public static void main(String[] args) {
         new Main().run();
     }
@@ -150,7 +150,7 @@ public class Main extends GameCore {
                     }
                     else
                     {
-                        resourceManager.generateInfo(openInventory.get(index),index,player.getInventory());
+                        resourceManager.generateInfo(openInventory.get(index),index,this);
                         resourceManager.setInfoOpened(true);
                     }
                 }
