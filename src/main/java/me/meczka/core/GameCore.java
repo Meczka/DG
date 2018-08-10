@@ -21,8 +21,9 @@ import javax.swing.ImageIcon;
             {
                 init();
                 gameLoop();
-            }finally
+            }catch(Exception e)
             {
+                e.printStackTrace();
                 screen.restoreScreen();
                 System.exit(1);
             }

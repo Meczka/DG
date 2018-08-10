@@ -6,5 +6,21 @@
       "weight":1,
       "food_points":2
     }
+  ],
+  "mobs":[
+    {
+      "name":"rat",
+      "weapon":"hand",
+      "hp":2
+    }
+  ],
+  "weapons":[
+    {
+      "name":"hand",
+      "range":0,
+      "damage":1,
+      "attackSpeed":1,
+      "type":0
+    }
   ]
 }

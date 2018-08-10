@@ -2,16 +2,20 @@ package me.meczka.managers;
 
 
 import me.meczka.core.TileMap;
+import me.meczka.creatures.MOB;
 import me.meczka.graphics.Animation;
 import me.meczka.interfaces.Eatable;
 import me.meczka.interfaces.Openable;
 import me.meczka.items.Chleb;
 import me.meczka.items.Item;
 import me.meczka.items.Tile;
+import me.meczka.items.Weapon;
 import me.meczka.main.Main;
+import me.meczka.sprites.Creature;
 import me.meczka.sprites.Player;
 import me.meczka.structures.Chest;
 import me.meczka.structures.Structure;
+import me.meczka.utils.Equipment;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import me.meczka.utils.Button;
@@ -28,6 +32,8 @@ public class ResourceManager {
     //obrazki kafelkow
     private Image a, b;
     public static final Map<String, JSONObject> itemsInfo = new HashMap<String, JSONObject>();
+    public static final Map<String,JSONObject> weaponsInfo = new HashMap<>();
+    public static final Map<String,JSONObject> mobsInfo = new HashMap<>();
     //obrazek playera
     private Image player;
     //obrazki struktur
@@ -37,10 +43,14 @@ public class ResourceManager {
     private boolean isInfoOpened=false;
     //obrazki przyciskow
     private Image button_zjedz,button_wyrzuc;
+    //ratimg(temp)
+    private Image ratimg;
     //Listy
     private ArrayList<Tile> tiles;
     private ArrayList<Structure> structures;
     private ArrayList<Openable> openables;
+    private ArrayList<Creature> creatures;
+    private Vector[] sasiedzi;
     private List<Button> buttons;
     private TileMap map;
     private int infoIndex;
@@ -52,11 +62,15 @@ public class ResourceManager {
         structures = new ArrayList<Structure>();
         openables = new ArrayList<Openable>();
         buttons = new ArrayList<Button>();
+        creatures = new ArrayList<Creature>();
+
         loadImages();
         loadTiles();
         loadInfo();
         mapnumber++;
         map = loadMap(mapnumber);
+
+        loadMOBS(mapnumber);
     }
 
     public boolean isInfoOpened() {
@@ -94,6 +108,19 @@ public class ResourceManager {
                 JSONObject temp = jsonArray.getJSONObject(i);
                 itemsInfo.put(temp.getString("name"), temp);
             }
+            jsonArray = jsonObject.getJSONArray("mobs");
+            for(int i=0;i < jsonArray.length();i++)
+            {
+                JSONObject temp = jsonArray.getJSONObject(i);
+                mobsInfo.put(temp.getString("name"),temp);
+            }
+            jsonArray = jsonObject.getJSONArray("weapons");
+            for(int i=0;i<jsonArray.length();i++)
+            {
+                JSONObject temp = jsonArray.getJSONObject(i);
+                weaponsInfo.put(temp.getString("name"),temp);
+            }
+
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -102,7 +129,39 @@ public class ResourceManager {
         }
 
     }
+    public void loadMOBS(int number)
+    {
+        try{
+            BufferedReader bufferedReader = new BufferedReader(new FileReader("maps/"+number+".map"));
+            while(true)
+            {
+                String line = bufferedReader.readLine();
+                if(line==null)
+                {
+                    break;
+                }
+                if(line.startsWith("$"))
+                {
+                    line=line.substring(1);
+                    String parts[] = line.split(",");
+                    Animation anim = new Animation();
+                    anim.addFrame(ratimg,50);
+                    Equipment eq = new Equipment();
+                    String weaponName = mobsInfo.get(parts[0]).getString("weapon");
+                    JSONObject wp = weaponsInfo.get(weaponName);
+                    eq.setWeapon(new Weapon(wp.getInt("range"),wp.getInt("damage"),wp.getInt("attackSpeed"),wp.getInt("type")));
+                    MOB mob = new MOB(anim,mobsInfo.get(parts[0]).getInt("hp"),eq);
+                    mob.setX(GameCalcuator.tilesToPixels(Integer.parseInt(parts[1])));
+                    mob.setY(GameCalcuator.tilesToPixels(Integer.parseInt(parts[2])));
+                    creatures.add(mob);
+                }
+            }
 
+        }catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
     public TileMap loadMap(int number) {
         int height = 0, width = 0;
         try {
@@ -135,26 +194,46 @@ public class ResourceManager {
                         structures.add(chest);
                         openables.add(chest);
                     }
-                } else {
+                } else if(!line.startsWith("$")) {
                     lines.add(line);
                     width = Math.max(width, line.length());
                 }
             }
+                height = lines.size();
+                sasiedzi = new Vector[height * width];
+                for(int i=0;i<sasiedzi.length;i++)
+                {
+                    sasiedzi[i] = new Vector();
+                }
+                TileMap map = new TileMap(width, height);
+                map.setSpawnY(spawny);
+                map.setSpawnX(spawnx);
+                for (int y = 0; y < height; y++) {
+                    String line = (String) lines.get(y);
+                    for (int x = 0; x < width; x++) {
+                        char ch = line.charAt(x);
+                        int tile = ch - 'A';
+                        if (tile >= 0 && tile <= tiles.size()) {
+                            map.setTile(x, y, (Tile) tiles.get(tile).clone());
+                            if (tiles.get(tile).isWalkable()) {
+                                int pos = x * y;
+                                if(x!=0) {
+                                    if (map.getTile(x - 1, y).isWalkable()) {
+                                        sasiedzi[pos].add(pos-1);
+                                        sasiedzi[pos - 1].add(pos);
+                                    }
+                                }
+                                if(y!=0) {
 
-            height = lines.size();
-            TileMap map = new TileMap(width, height);
-            map.setSpawnY(spawny);
-            map.setSpawnX(spawnx);
-            for (int y = 0; y < height; y++) {
-                String line = (String) lines.get(y);
-                for (int x = 0; x < width; x++) {
-                    char ch = line.charAt(x);
-                    int tile = ch - 'A';
-                    if (tile >= 0 && tile <= tiles.size()) {
-                        map.setTile(x, y, (Tile) tiles.get(tile).clone());
+                                    if (map.getTile(x, y - 1).isWalkable()) {
+                                        sasiedzi[pos - width].add(pos);
+                                        sasiedzi[pos].add(pos - width);
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
-            }
 
             return map;
         } catch (FileNotFoundException e) {
@@ -174,7 +253,10 @@ public class ResourceManager {
     public TileMap getMap() {
         return map;
     }
-
+    public Vector[] getSasiedzi()
+    {
+        return sasiedzi;
+    }
     public void loadTiles() {
         tiles.add(new Tile(a));
         tiles.add(new Tile(b, true));
@@ -188,6 +270,7 @@ public class ResourceManager {
         chlebimg = loadImage("chleb");
         button_zjedz = loadImage("button_zjedz");
         button_wyrzuc = loadImage("button_wyrzuc");
+        ratimg = loadImage("rat");
     }
 
     public Animation createPlayerAnim() {
@@ -274,5 +357,9 @@ public class ResourceManager {
     public Image loadImage(String name)
     {
         return new ImageIcon("images/"+name+".png").getImage();
+    }
+
+    public ArrayList<Creature> getCreatures() {
+        return creatures;
     }
 }

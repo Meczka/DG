@@ -1,6 +1,7 @@
 package me.meczka.sprites;
 
 import me.meczka.graphics.Animation;
+import me.meczka.graphics.Sprite;
 import me.meczka.interfaces.Eatable;
 import me.meczka.interfaces.Openable;
 import me.meczka.items.Item;
@@ -10,7 +11,7 @@ import java.util.ArrayList;
 /**
  * Created by Chilik on 25.01.2018.
  */
-public class Player extends Creature    {
+public class Player extends Creature {
     private int foodPoints = 10;
     private int health = 20;
     private ArrayList inventory;

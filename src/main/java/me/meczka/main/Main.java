@@ -2,6 +2,7 @@ package me.meczka.main;
 
 import me.meczka.core.GameCore;
 import me.meczka.core.TileMap;
+import me.meczka.creatures.MOB;
 import me.meczka.graphics.Sprite;
 import me.meczka.interfaces.Openable;
 import me.meczka.items.Item;
@@ -67,6 +68,14 @@ public class Main extends GameCore {
             Structure s = (Structure) iterator.next();
             g.drawImage(s.getImage(),GameCalcuator.tilesToPixels(s.getX())+10,GameCalcuator.tilesToPixels(s.getY())+10,null);
         }
+        ArrayList<Creature> creatures = resourceManager.getCreatures();
+        for(int i=0;i<creatures.size();i++)
+        {
+            Creature c = creatures.get(i);
+           g.drawImage(c.getImage(),(int)c.getX(),(int)c.getY(),null);
+        }
+
+
         ArrayList buttons = (ArrayList) resourceManager.getButtons();
 
         if(isInventoryOpened)
@@ -82,6 +91,7 @@ public class Main extends GameCore {
             Button button = (Button) buttons.get(i);
             g.drawImage(button.getImg(),button.getX(),button.getY(),null);
         }
+
         g.dispose();
     }
     public void createGameActions(){
@@ -107,6 +117,12 @@ public class Main extends GameCore {
         chceckInput();
         updateCreature(player,elapsedTime);
         player.update(elapsedTime);
+        ArrayList<Creature> mobs =  resourceManager.getCreatures();
+        for(int i=0;i<mobs.size();i++)
+        {
+            MOB mob =(MOB) mobs.get(i);
+            mob.chceckTrigger((int)player.getX(),(int)player.getY(),resourceManager.getSasiedzi(),resourceManager.getMap().getWidth());
+        }
     }
     public synchronized void chceckInput()
     {
@@ -226,6 +242,10 @@ public class Main extends GameCore {
             creature.setX(newX);
             creature.setY(newY);
         }
+    }
+    public void updateMobs()
+    {
+
     }
     public boolean checkWalkable(int x,int y)
     {

@@ -1,0 +1,84 @@
+package me.meczka.creatures;
+
+import me.meczka.graphics.Animation;
+import me.meczka.managers.GameCalcuator;
+import me.meczka.sprites.Creature;
+import me.meczka.utils.Equipment;
+
+import java.time.temporal.ValueRange;
+import java.util.Vector;
+
+public class MOB extends Creature {
+    public static final int TRIGGER_RANGE=5;
+    private int hp;
+    private Equipment eq;
+    private boolean isTiggered=false;
+    private Vector droga,droga1;
+    public MOB(Animation anim,int hp,Equipment eq)
+    {
+        super(anim,true);
+        this.hp=hp;
+        this.eq=eq;
+    }
+    public int getHP()
+    {
+        return hp;
+    }
+    public void setHP(int hp)
+    {
+        this.hp=hp;
+    }
+    public boolean chceckTrigger(int playerx, int playery, Vector[] sasiedzi,int mapWidth)
+    {
+        if(!isTiggered) {
+            playerx = (int) GameCalcuator.pixelsToTiles(playerx);
+            playery = (int) GameCalcuator.pixelsToTiles(playery);
+            int x = (int) GameCalcuator.pixelsToTiles((int) getX());
+            int y = (int) GameCalcuator.pixelsToTiles((int) getY());
+            int x1 = playerx - x;
+            int y1 = playery - y;
+            if (x1 < MOB.TRIGGER_RANGE && x1 > -MOB.TRIGGER_RANGE) {
+                isTiggered = true;
+                return true;
+            }
+        }
+        if(isTiggered)
+        {
+            playerx = (int) GameCalcuator.pixelsToTiles(playerx);
+            playery = (int) GameCalcuator.pixelsToTiles(playery);
+            int x = (int) GameCalcuator.pixelsToTiles((int) getX());
+            int y = (int) GameCalcuator.pixelsToTiles((int) getY());
+            boolean[] odwiedzone = new boolean[sasiedzi.length];
+            droga = new Vector<>();
+            int cel = playerx*playery;
+            DFS(x*y,cel,odwiedzone,sasiedzi);
+            int pos2 = (int)droga1.get(droga1.size()-3);
+            System.out.println(pos2);
+            int direction = GameCalcuator.calculateDirection(x*y,pos2,mapWidth);
+            if(direction==GameCalcuator.DIRECTON_X)
+            {
+                setVelX(-0.2f);
+            }
+        }
+        return false;
+    }
+    private void DFS(int pos,int cel,boolean[] odwiedzone,Vector[] sasiedzi)
+    {
+        odwiedzone[pos] = true;
+        droga.add(pos);
+        if(pos==cel)
+        {
+            droga1=(Vector) droga.clone();
+        }
+        for(int i=0;i<sasiedzi[pos].size();i++)
+        {
+            if(!odwiedzone[(int)sasiedzi[pos].get(i)])
+            {
+                DFS((int)sasiedzi[pos].get(i),cel,odwiedzone,sasiedzi);
+            }
+        }
+        droga.remove(droga.size()-1);
+
+    }
+
+}
