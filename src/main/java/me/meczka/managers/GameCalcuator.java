@@ -1,5 +1,10 @@
 package me.meczka.managers;
 
+import me.meczka.items.Weapon;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+
 /**
  * Created by Chilik on 25.01.2018.
  */
@@ -36,5 +41,9 @@ public class GameCalcuator {
     public static int coordinatesToIndex(int x,int y,int width)
     {
         return y*width+x;
+    }
+    public static Weapon generateWeapon(JSONObject wp)
+    {
+        return new Weapon(wp.getInt("range"),wp.getInt("damage"),wp.getInt("attackSpeed"),wp.getInt("type"));
     }
 }

@@ -49,7 +49,7 @@ public class ResourceManager {
     private ArrayList<Tile> tiles;
     private ArrayList<Structure> structures;
     private ArrayList<Openable> openables;
-    private ArrayList<Creature> creatures;
+    private ArrayList<MOB> mobs;
     private Vector[] sasiedzi;
     private List<Button> buttons;
     private TileMap map;
@@ -62,7 +62,7 @@ public class ResourceManager {
         structures = new ArrayList<Structure>();
         openables = new ArrayList<Openable>();
         buttons = new ArrayList<Button>();
-        creatures = new ArrayList<Creature>();
+        mobs = new ArrayList<MOB>();
 
         loadImages();
         loadTiles();
@@ -82,6 +82,7 @@ public class ResourceManager {
     }
 
     public void loadStartingPlayerInv(Player player) {
+        player.getEq().setWeapon(GameCalcuator.generateWeapon(weaponsInfo.get("hand")));
         player.addItem(new Chleb(chlebimg));
     }
 
@@ -149,11 +150,11 @@ public class ResourceManager {
                     Equipment eq = new Equipment();
                     String weaponName = mobsInfo.get(parts[0]).getString("weapon");
                     JSONObject wp = weaponsInfo.get(weaponName);
-                    eq.setWeapon(new Weapon(wp.getInt("range"),wp.getInt("damage"),wp.getInt("attackSpeed"),wp.getInt("type")));
+                    eq.setWeapon(GameCalcuator.generateWeapon(wp));
                     MOB mob = new MOB(anim,mobsInfo.get(parts[0]).getInt("hp"),eq);
                     mob.setX(GameCalcuator.tilesToPixels(Integer.parseInt(parts[1])));
                     mob.setY(GameCalcuator.tilesToPixels(Integer.parseInt(parts[2])));
-                    creatures.add(mob);
+                    mobs.add(mob);
                 }
             }
 
@@ -359,7 +360,7 @@ public class ResourceManager {
         return new ImageIcon("images/"+name+".png").getImage();
     }
 
-    public ArrayList<Creature> getCreatures() {
-        return creatures;
+    public ArrayList<MOB> getMOBS() {
+        return mobs;
     }
 }

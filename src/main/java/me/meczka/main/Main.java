@@ -68,11 +68,12 @@ public class Main extends GameCore {
             Structure s = (Structure) iterator.next();
             g.drawImage(s.getImage(),GameCalcuator.tilesToPixels(s.getX())+10,GameCalcuator.tilesToPixels(s.getY())+10,null);
         }
-        ArrayList<Creature> creatures = resourceManager.getCreatures();
+        ArrayList<MOB> creatures = resourceManager.getMOBS();
         for(int i=0;i<creatures.size();i++)
         {
-            Creature c = creatures.get(i);
+            MOB c = creatures.get(i);
            g.drawImage(c.getImage(),(int)c.getX(),(int)c.getY(),null);
+           g.drawString("HP "+c.getHP(),(int)c.getX(),c.getVelY()+70);
         }
         g.setColor(Color.WHITE);
         g.drawString("HP: "+player.getHealth(),100,800);
@@ -117,11 +118,15 @@ public class Main extends GameCore {
         chceckInput();
         updateCreature(player,elapsedTime);
         player.update(elapsedTime);
-        ArrayList<Creature> mobs =  resourceManager.getCreatures();
+        ArrayList<MOB> mobs =  resourceManager.getMOBS();
         for(int i=0;i<mobs.size();i++)
         {
-            MOB mob =(MOB) mobs.get(i);
+            MOB mob = mobs.get(i);
             mob.chceckTrigger((int)player.getX(),(int)player.getY(),resourceManager.getSasiedzi(),resourceManager.getMap().getWidth(),player);
+            if(mob.getHP()<=0)
+            {
+                mobs.remove(i);
+            }
             updateCreature(mob,elapsedTime);
         }
     }
@@ -177,6 +182,16 @@ public class Main extends GameCore {
                     }
                 }
             }
+            ArrayList<MOB> mobs= resourceManager.getMOBS();
+            for(int i=0;i<mobs.size();i++) {
+                MOB mob = mobs.get(i);
+                int mobX = (int) mob.getX();
+                int mobY = (int) mob.getY();
+                if (x >= mobX && y >= mobY && x <= mobX + 50 & y <= mobY + 50) {
+                    player.attack(mob);
+                }
+
+            }
             ArrayList<Button> buttons = (ArrayList) resourceManager.getButtons();
             for(int i=0;i<buttons.size();i++)
             {
@@ -207,6 +222,7 @@ public class Main extends GameCore {
                     }
                 }
             }
+
         }
         if(ekwipunek.isPressed())
         {

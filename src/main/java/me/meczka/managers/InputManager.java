@@ -91,12 +91,10 @@ public class InputManager implements KeyListener, MouseListener {
     }
 
     public void mouseClicked(MouseEvent e) {
-
     }
 
     public void mousePressed(MouseEvent e) {
-        if(mouseAction!=null)
-        {
+        if (mouseAction != null) {
             mouseAction.press();
             mouseAction.setMousePressX(e.getX());
             mouseAction.setMousePressY(e.getY());
