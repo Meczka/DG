@@ -14,4 +14,15 @@ public class Weapon {
         this.weaponType=weaponType;
     }
 
+    public int getDamage() {
+        return damage;
+    }
+
+    public int getAttackSpeed() {
+        return attackSpeed;
+    }
+
+    public int getWeaponType() {
+        return weaponType;
+    }
 }

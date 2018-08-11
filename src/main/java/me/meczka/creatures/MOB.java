@@ -3,22 +3,27 @@ package me.meczka.creatures;
 import me.meczka.graphics.Animation;
 import me.meczka.managers.GameCalcuator;
 import me.meczka.sprites.Creature;
+import me.meczka.sprites.Player;
 import me.meczka.utils.Equipment;
 
 import java.time.temporal.ValueRange;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.Vector;
 
 public class MOB extends Creature {
     public static final int TRIGGER_RANGE=5;
     private int hp;
     private Equipment eq;
-    private boolean isTiggered=false;
+    private boolean isTiggered=false,isOnCooldown=false;
     private Vector droga,droga1;
+    private Timer timer;
     public MOB(Animation anim,int hp,Equipment eq)
     {
         super(anim,true);
         this.hp=hp;
         this.eq=eq;
+        timer = new Timer();
     }
     public int getHP()
     {
@@ -28,7 +33,7 @@ public class MOB extends Creature {
     {
         this.hp=hp;
     }
-    public boolean chceckTrigger(int playerx, int playery, Vector[] sasiedzi,int mapWidth)
+    public boolean chceckTrigger(int playerx, int playery, Vector[] sasiedzi,int mapWidth,Player player)
     {
         if(!isTiggered) {
             playerx = (int) GameCalcuator.pixelsToTiles(playerx);
@@ -50,17 +55,53 @@ public class MOB extends Creature {
             int y = (int) GameCalcuator.pixelsToTiles((int) getY());
             boolean[] odwiedzone = new boolean[sasiedzi.length];
             droga = new Vector<>();
-            int cel = playerx*playery;
-            DFS(x*y,cel,odwiedzone,sasiedzi);
-            int pos2 = (int)droga1.get(droga1.size()-3);
-            System.out.println(pos2);
-            int direction = GameCalcuator.calculateDirection(x*y,pos2,mapWidth);
-            if(direction==GameCalcuator.DIRECTON_X)
+            int playerPos = GameCalcuator.coordinatesToIndex(playerx,playery,mapWidth);
+            int myPos = GameCalcuator.coordinatesToIndex(x,y,mapWidth);
+            if(myPos==playerPos)
             {
-                setVelX(-0.2f);
+                setVelX(0f);
+                setVelY(0f);
+                attack(player);
+                return true;
+            }
+            DFS(playerPos,myPos,odwiedzone,sasiedzi);
+            int pos2 = (int)droga1.get(droga1.size()-2);
+            int direction = GameCalcuator.calculateDirection(myPos,pos2,mapWidth);
+            if(direction==GameCalcuator.DIRECTION_minX)
+            {
+                setVelX(-0.1f);
+                setVelY(0f);
+            }
+            else if(direction==GameCalcuator.DIRECTON_X)
+            {
+                setVelX(0.1f);
+                setVelY(0f);
+            }
+            else if(direction==GameCalcuator.DIRECTION_Y)
+            {
+                setVelY(0.1f);
+                setVelX(0f);
+            }
+            else if(direction==GameCalcuator.DIRECTION_minY)
+            {
+                setVelY(-0.1f);
+                setVelX(0f);
             }
         }
         return false;
+    }
+    public synchronized void attack(Player player)
+    {
+        if(!isOnCooldown) {
+            player.setHealth(player.getHealth() - eq.getWeapon().getDamage());
+            isOnCooldown=true;
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    isOnCooldown = false;
+                }
+            }, eq.getWeapon().getAttackSpeed());
+        }
     }
     private void DFS(int pos,int cel,boolean[] odwiedzone,Vector[] sasiedzi)
     {
@@ -80,5 +121,13 @@ public class MOB extends Creature {
         droga.remove(droga.size()-1);
 
     }
+    public void debug()
+    {
+        double newX = getX()/50;
+        setX((int)Math.floor(newX)*50);
+        double newY = getY()/50;
+        setY((int)Math.floor(newY)*50);
+
+   }
 
 }

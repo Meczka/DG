@@ -216,7 +216,7 @@ public class ResourceManager {
                         if (tile >= 0 && tile <= tiles.size()) {
                             map.setTile(x, y, (Tile) tiles.get(tile).clone());
                             if (tiles.get(tile).isWalkable()) {
-                                int pos = x * y;
+                                int pos = GameCalcuator.coordinatesToIndex(x,y,width);
                                 if(x!=0) {
                                     if (map.getTile(x - 1, y).isWalkable()) {
                                         sasiedzi[pos].add(pos-1);

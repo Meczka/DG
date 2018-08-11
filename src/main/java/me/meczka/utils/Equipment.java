@@ -8,4 +8,8 @@ public class Equipment {
     {
         this.weapon=weapon;
     }
+
+    public Weapon getWeapon() {
+        return weapon;
+    }
 }

@@ -33,4 +33,8 @@ public class GameCalcuator {
         }
         return 5;
     }
+    public static int coordinatesToIndex(int x,int y,int width)
+    {
+        return y*width+x;
+    }
 }

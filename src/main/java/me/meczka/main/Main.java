@@ -74,8 +74,8 @@ public class Main extends GameCore {
             Creature c = creatures.get(i);
            g.drawImage(c.getImage(),(int)c.getX(),(int)c.getY(),null);
         }
-
-
+        g.setColor(Color.WHITE);
+        g.drawString("HP: "+player.getHealth(),100,800);
         ArrayList buttons = (ArrayList) resourceManager.getButtons();
 
         if(isInventoryOpened)
@@ -121,7 +121,8 @@ public class Main extends GameCore {
         for(int i=0;i<mobs.size();i++)
         {
             MOB mob =(MOB) mobs.get(i);
-            mob.chceckTrigger((int)player.getX(),(int)player.getY(),resourceManager.getSasiedzi(),resourceManager.getMap().getWidth());
+            mob.chceckTrigger((int)player.getX(),(int)player.getY(),resourceManager.getSasiedzi(),resourceManager.getMap().getWidth(),player);
+            updateCreature(mob,elapsedTime);
         }
     }
     public synchronized void chceckInput()
@@ -241,6 +242,13 @@ public class Main extends GameCore {
         {
             creature.setX(newX);
             creature.setY(newY);
+        }
+        else
+        {
+            if(creature instanceof MOB){
+                MOB mob =(MOB) creature;
+                mob.debug();
+            }
         }
     }
     public void updateMobs()

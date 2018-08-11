@@ -19,7 +19,7 @@
       "name":"hand",
       "range":0,
       "damage":1,
-      "attackSpeed":1,
+      "attackSpeed":1000,
       "type":0
     }
   ]
