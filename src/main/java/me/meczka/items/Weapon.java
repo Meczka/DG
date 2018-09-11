@@ -1,17 +1,27 @@
 package me.meczka.items;
 
-import java.awt.*;
+import me.meczka.interfaces.Equipable;
+import me.meczka.sprites.Player;
+import me.meczka.utils.Equipment;
+import me.meczka.utils.Perk;
 
-public class Weapon {
+import java.awt.*;
+import java.util.ArrayList;
+
+public class Weapon extends Item implements Equipable {
     public static final int WEAPON_TYPE_BLADE = 0;
-    private int range,damage,attackSpeed,weaponType;
-    private int damageType;
-    public Weapon(int range,int damage,int attackSpeed,int weaponType)
+    public static final int DAMAGE_TYPE_PHYSIC = 0;
+    private ArrayList<Perk> perks;
+    private int range,damage,attackSpeed,weaponType,damageType;
+    public Weapon(int range,int damage,int attackSpeed,int weaponType,int damageType,String name,Image icon,int weight,String description)
     {
+        super(name,icon,weight,description);
         this.range=range;
         this.damage=damage;
         this.attackSpeed=attackSpeed;
         this.weaponType=weaponType;
+        this.damageType=damageType;
+        perks = new ArrayList<>();
     }
 
     public int getDamage() {
@@ -20,6 +30,23 @@ public class Weapon {
 
     public int getAttackSpeed() {
         return attackSpeed;
+    }
+    public void equip(Player player)
+    {
+        Equipment eq = player.getEq();
+        if(eq.getWeapon()!=null)
+        {
+            player.addItem(eq.getWeapon());
+        }
+        eq.setWeapon(this);
+    }
+
+    public ArrayList<Perk> getPerks() {
+        return perks;
+    }
+
+    public void setPerks(ArrayList<Perk> perks) {
+        this.perks = perks;
     }
 
     public int getWeaponType() {

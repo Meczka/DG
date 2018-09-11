@@ -5,6 +5,7 @@ import me.meczka.core.TileMap;
 import me.meczka.creatures.MOB;
 import me.meczka.graphics.Animation;
 import me.meczka.interfaces.Eatable;
+import me.meczka.interfaces.Equipable;
 import me.meczka.interfaces.Openable;
 import me.meczka.items.Chleb;
 import me.meczka.items.Item;
@@ -16,12 +17,14 @@ import me.meczka.sprites.Player;
 import me.meczka.structures.Chest;
 import me.meczka.structures.Structure;
 import me.meczka.utils.Equipment;
+import me.meczka.utils.Perk;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import me.meczka.utils.Button;
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.*;
 import java.util.List;
 
@@ -42,7 +45,7 @@ public class ResourceManager {
     private Image chlebimg;
     private boolean isInfoOpened=false;
     //obrazki przyciskow
-    private Image button_zjedz,button_wyrzuc;
+    private Image button_zjedz,button_wyrzuc,button_zaloz;
     //ratimg(temp)
     private Image ratimg;
     //Listy
@@ -79,6 +82,9 @@ public class ResourceManager {
 
     public void setInfoOpened(boolean infoOpened) {
         isInfoOpened = infoOpened;
+        if(!infoOpened) {
+            Button.removeAllButtonsOfType((ArrayList) buttons, Button.TYPE_INFO);
+        }
     }
 
     public void loadStartingPlayerInv(Player player) {
@@ -188,8 +194,13 @@ public class ResourceManager {
                     if (parts[0].equalsIgnoreCase("chest")) {
                         Chest chest = new Chest(Integer.parseInt(parts[1]), Integer.parseInt(parts[2]), chestimg);
                         for (int i = 3; i < parts.length; i++) {
-                            if (parts[3].equalsIgnoreCase("chleb")) {
+                            if (parts[i].equalsIgnoreCase("chleb")) {
                                 chest.addItem(new Chleb(chlebimg));
+                            }
+                            else if(parts[i].startsWith("weapon"))
+                            {
+                                String name= parts[i].substring(7);
+                                chest.addItem(GameCalcuator.generateWeapon(weaponsInfo.get(name)));
                             }
                         }
                         structures.add(chest);
@@ -271,6 +282,7 @@ public class ResourceManager {
         chlebimg = loadImage("chleb");
         button_zjedz = loadImage("button_zjedz");
         button_wyrzuc = loadImage("button_wyrzuc");
+        button_zaloz = loadImage("button_zaloz");
         ratimg = loadImage("rat");
     }
 
@@ -319,6 +331,18 @@ public class ResourceManager {
             ));
             //buttons.add(new ItemButton(button_zjedz,infoItem,leftOffset,offset+20,Button.TYPE_INFO));
         }
+        if(infoItem instanceof Equipable)
+        {
+            buttons.add(new Button(button_zaloz,leftOffset,offset+20,Button.TYPE_INFO,()->
+            {
+               Equipable e = (Equipable)item;
+               e.equip(main.player);
+               main.player.getInventory().remove(item);
+               Button.removeAllButtonsOfType((ArrayList<Button>)buttons,Button.TYPE_INFO);
+               isInfoOpened=false;
+            }
+            ));
+        }
     }
     public void generateInfo(Graphics2D g)
     {
@@ -336,6 +360,19 @@ public class ResourceManager {
         {
             g.drawString("Punkty jedzenia: "+ ((Eatable) infoItem).getFoodPoints(),300,offset+20);
             offset+=20;
+        }
+        if(infoItem instanceof Equipable)
+        {
+            ArrayList<Perk> perks = ((Equipable) infoItem).getPerks();
+            for(int i=0;i<perks.size();i++)
+            {
+
+                if(perks.get(i).getType()==Perk.PHYSIC_DAMAGE_RESISTANCE)
+                {
+                    g.drawString("Odpornosc: "+ perks.get(i).getValue(),300,offset+20);
+                    offset+=20;
+                }
+            }
         }
         //rysowanie buttonow
 
@@ -355,7 +392,7 @@ public class ResourceManager {
         return -1;
     }
 
-    public Image loadImage(String name)
+    public static Image loadImage(String name)
     {
         return new ImageIcon("images/"+name+".png").getImage();
     }

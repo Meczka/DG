@@ -25,6 +25,11 @@ public class MOB extends Creature {
         this.eq=eq;
         timer = new Timer();
     }
+
+    public Equipment getEq() {
+        return eq;
+    }
+
     public int getHP()
     {
         return hp;

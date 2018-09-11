@@ -6,6 +6,7 @@ import me.meczka.graphics.Sprite;
 import me.meczka.interfaces.Eatable;
 import me.meczka.interfaces.Openable;
 import me.meczka.items.Item;
+import me.meczka.managers.GameCalcuator;
 import me.meczka.utils.Equipment;
 
 import java.util.ArrayList;
@@ -41,7 +42,7 @@ public class Player extends Creature {
     public void attack(MOB mob)
     {
         if(!isOnColldown) {
-            mob.setHP(mob.getHP() - eq.getWeapon().getDamage());
+            mob.setHP(mob.getHP() - GameCalcuator.calculateDamage(eq,mob.getEq()));
             isOnColldown=true;
             timer.schedule(new TimerTask() {
                 @Override
@@ -58,7 +59,10 @@ public class Player extends Creature {
     {
         foodPoints+=meal.getFoodPoints();
     }
-
+    public int getFoodPoints()
+    {
+        return foodPoints;
+    }
     public ArrayList getInventory() {
         return inventory;
     }

@@ -14,7 +14,6 @@ public class Structure {
         this.y=y;
         this.image=image;
     }
-
     public Image getImage() {
         return image;
     }
@@ -22,7 +21,6 @@ public class Structure {
     public void setImage(Image image) {
         this.image = image;
     }
-
     public int getX() {
         return x;
     }

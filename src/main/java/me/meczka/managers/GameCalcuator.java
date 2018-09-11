@@ -1,8 +1,14 @@
 package me.meczka.managers;
 
+import me.meczka.interfaces.Equipable;
 import me.meczka.items.Weapon;
+import me.meczka.utils.Equipment;
+import me.meczka.utils.Perk;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -44,6 +50,52 @@ public class GameCalcuator {
     }
     public static Weapon generateWeapon(JSONObject wp)
     {
-        return new Weapon(wp.getInt("range"),wp.getInt("damage"),wp.getInt("attackSpeed"),wp.getInt("type"));
+        Weapon weapon = new Weapon(wp.getInt("range"),wp.getInt("damage"),wp.getInt("attackSpeed"),wp.getInt("type"),wp.getInt("damageType"),wp.getString("name"),
+                ResourceManager.loadImage(wp.getString("name")),wp.getInt("weight"),wp.getString("description"));
+        JSONArray Jperks = wp.getJSONArray("perks");
+        ArrayList<Perk> perks = new ArrayList<>();
+        for(int i=0;i<Jperks.length();i++)
+        {
+            JSONObject temp = Jperks.getJSONObject(i);
+            perks.add(new Perk(temp.getInt("id"),temp.getInt("value")));
+        }
+        weapon.setPerks(perks);
+        return weapon;
+    }
+    public static int calculateDamage(Equipment attacker, Equipment defender)
+    {
+        ArrayList<Perk> defenderPerks = getPerksFromEquipment(defender);
+        double damage = attacker.getWeapon().getDamage();
+        for(int i=0;i<defenderPerks.size();i++)
+        {
+            if(Perk.affectedWeaponType(defenderPerks.get(i).getType())==attacker.getWeapon().getWeaponType())
+            {
+                double temp = defenderPerks.get(i).getValue();
+                damage = Perk.calculate(defenderPerks.get(i).getType(),damage,temp);
+            }
+        }
+        System.out.println(damage);
+        return (int) Math.round(damage);
+    }
+    public static ArrayList<Perk> getPerksFromEquipment(Equipment eq)
+    {
+        ArrayList<Perk> retVal = new ArrayList<>();
+        retVal.addAll(eq.getWeapon().getPerks());
+        if(eq.getHelmet()!=null)
+        {
+            retVal.addAll(eq.getHelmet().getPerks());
+        }
+        if(eq.getChest()!=null)
+        {
+            retVal.addAll(eq.getChest().getPerks());
+        }
+        if(eq.getPants()!=null)
+        {
+            retVal.addAll(eq.getPants().getPerks());
+        }
+
+
+
+        return retVal;
     }
 }

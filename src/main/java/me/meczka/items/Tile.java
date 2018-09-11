@@ -17,6 +17,10 @@ public class Tile{
         this.image=image;
         this.walkable=walkable;
     }
+    public void setWalkable(boolean walkable)
+    {
+        this.walkable=walkable;
+    }
     public boolean isWalkable()
     {
         return walkable;

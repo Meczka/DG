@@ -20,7 +20,17 @@
       "range":0,
       "damage":1,
       "attackSpeed":1000,
-      "type":0
+      "type":0,
+      "damageType":0,
+      "weight":0,
+      "description":"your own hand",
+      "perks":
+              [
+                {
+                  "id":0,
+                  "value":10
+                }
+              ]
     }
   ]
 }

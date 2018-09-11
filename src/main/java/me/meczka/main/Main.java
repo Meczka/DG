@@ -28,7 +28,7 @@ public class Main extends GameCore {
     private InputManager input;
     private ResourceManager resourceManager;
     private GameAction przod,lewo,prawo,tyl,myszka,ekwipunek,esc;
-    private boolean isInventoryOpened = false,isInfoOpened = false;
+    private boolean isInventoryOpened = false;
     private ArrayList<Item> openInventory;
     public Player player;
     public static void main(String[] args) {
@@ -174,7 +174,8 @@ public class Main extends GameCore {
                         } else {
                             System.out.println(index);
                             System.out.println(openInventory.size());
-
+                            ArrayList<Button> buttons  =(ArrayList<Button>) resourceManager.getButtons();
+                            Button.removeAllButtonsOfType(buttons,Button.TYPE_INFO);
                             resourceManager.generateInfo(openInventory.get(index), index, this);
                             resourceManager.setInfoOpened(true);
 
@@ -188,7 +189,16 @@ public class Main extends GameCore {
                 int mobX = (int) mob.getX();
                 int mobY = (int) mob.getY();
                 if (x >= mobX && y >= mobY && x <= mobX + 50 & y <= mobY + 50) {
-                    player.attack(mob);
+                    int resx,resy;
+                    int px = (int)GameCalcuator.pixelsToTiles((int)player.getX());
+                    int py = (int)GameCalcuator.pixelsToTiles((int)player.getY());
+                    mobX=(int)GameCalcuator.pixelsToTiles(mobX);
+                    mobY=(int)GameCalcuator.pixelsToTiles(mobY);
+                    resx = Math.min(mobX,px)-Math.max(mobX,px);
+                    resy = Math.min(mobY,py)-Math.max(mobY,py);
+                    if(resx<=2||resx>=-2&&resy<=2||resy>=-2) {
+                        player.attack(mob);
+                    }
                 }
 
             }
@@ -218,6 +228,7 @@ public class Main extends GameCore {
                     resy = Math.min(openy,py)-Math.max(openy,py);
                     if(resx==-1||resx==0&&resy==0||resy==-1) {
                         isInventoryOpened = true;
+                        resourceManager.setInfoOpened(false);
                         openInventory = openable.getInventory();
                     }
                 }
@@ -234,14 +245,8 @@ public class Main extends GameCore {
             if(resourceManager.isInfoOpened())
             {
                 resourceManager.setInfoOpened(false);
-                ArrayList<Button> buttons =(ArrayList<Button>) resourceManager.getButtons();
-                for(int i=0;i<buttons.size();i++)
-                {
-                    if(buttons.get(i).getType()==Button.TYPE_INFO)
-                    {
-                        buttons.remove(i);
-                    }
-                }
+              /*  ArrayList<Button> buttons =(ArrayList<Button>) resourceManager.getButtons();
+                Button.removeAllButtonsOfType(buttons,Button.TYPE_INFO);*/
             }
             else if(isInventoryOpened)
             {
