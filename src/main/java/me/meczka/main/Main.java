@@ -3,16 +3,19 @@ package me.meczka.main;
 import me.meczka.core.GameCore;
 import me.meczka.core.TileMap;
 import me.meczka.creatures.MOB;
+import me.meczka.graphics.Animation;
 import me.meczka.graphics.Sprite;
 import me.meczka.interfaces.Openable;
 import me.meczka.items.Item;
 import me.meczka.items.Tile;
+import me.meczka.items.Weapon;
 import me.meczka.managers.GameAction;
 import me.meczka.managers.GameCalcuator;
 import me.meczka.managers.InputManager;
 import me.meczka.managers.ResourceManager;
 import me.meczka.sprites.Creature;
 import me.meczka.sprites.Player;
+import me.meczka.sprites.Projectile;
 import me.meczka.structures.Structure;
 import me.meczka.utils.Button;
 import java.awt.*;
@@ -73,10 +76,16 @@ public class Main extends GameCore {
         {
             MOB c = creatures.get(i);
            g.drawImage(c.getImage(),(int)c.getX(),(int)c.getY(),null);
-           g.drawString("HP "+c.getHP(),(int)c.getX(),c.getVelY()+70);
+           g.drawString("HP "+c.getHp(),(int)c.getX(),c.getVelY()+70);
+        }
+        ArrayList<Projectile> projectiles = resourceManager.getProjectiles();
+        for (int i=0;i<projectiles.size();i++)
+        {
+            Projectile projectile = projectiles.get(i);
+            g.drawImage(projectile.getImage(),(int)projectile.getX(),(int)projectile.getY(),null);
         }
         g.setColor(Color.WHITE);
-        g.drawString("HP: "+player.getHealth(),100,800);
+        g.drawString("HP: "+player.getHp(),100,800);
         ArrayList buttons = (ArrayList) resourceManager.getButtons();
 
         if(isInventoryOpened)
@@ -123,11 +132,17 @@ public class Main extends GameCore {
         {
             MOB mob = mobs.get(i);
             mob.chceckTrigger((int)player.getX(),(int)player.getY(),resourceManager.getSasiedzi(),resourceManager.getMap().getWidth(),player);
-            if(mob.getHP()<=0)
+            if(mob.getHp()<=0)
             {
+                player.getInventory().addAll(mobs.get(i).getDrop().drop());
                 mobs.remove(i);
             }
             updateCreature(mob,elapsedTime);
+        }
+        ArrayList<Projectile> projectiles = resourceManager.getProjectiles();
+        for(int i=0;i<projectiles.size();i++)
+        {
+            updateProjectile(projectiles.get(i),elapsedTime);
         }
     }
     public synchronized void chceckInput()
@@ -196,8 +211,26 @@ public class Main extends GameCore {
                     mobY=(int)GameCalcuator.pixelsToTiles(mobY);
                     resx = Math.min(mobX,px)-Math.max(mobX,px);
                     resy = Math.min(mobY,py)-Math.max(mobY,py);
-                    if(resx<=2||resx>=-2&&resy<=2||resy>=-2) {
-                        player.attack(mob);
+                    int range = player.getEq().getWeapon().getRange();
+                    if(resx<=range&&resx>=-range&&resy<=range&&resy>=-range) {
+                        if(player.getEq().getWeapon().getWeaponType()== Weapon.WEAPON_TYPE_BLADE) {
+                            player.attack(mob);
+                        }
+                        else if(player.getEq().getWeapon().getWeaponType()==Weapon.WEAPON_TYPE_WAND)
+                        {
+                            float deltaX = Math.abs(x-player.getX());
+                            float deltaY = Math.abs(y-player.getY());
+                            double temp = Math.pow(deltaX,2)+Math.pow(deltaY,2);
+                            double s = Math.sqrt(temp);
+                            double t = s/0.2;
+                            Animation anim = new Animation();
+                            anim.addFrame(ResourceManager.loadImage("rat"),1000);
+                            double velX = deltaX/t;
+                            double velY = deltaY/t;
+                            Projectile proj = new Projectile(anim,(float)velX,(float)velY,(int)player.getX(),(int)player.getY(),player.getEq());
+                            System.out.println("Proj; velX " +velX + ";velY"+velY);
+                            resourceManager.getProjectiles().add(proj);
+                        }
                     }
                 }
 
@@ -255,6 +288,46 @@ public class Main extends GameCore {
             }
         }
     }
+    public void updateProjectile(Projectile projectile, long elapsedTime)
+    {
+        float newX = projectile.getX()+(projectile.getVelX()*elapsedTime);
+        float newY = projectile.getY()+(projectile.getVelY()*elapsedTime);
+        if(checkWalkable((int)newX,(int)newY))
+        {
+            projectile.setX(newX);
+            projectile.setY(newY);
+        }
+        else
+        {
+            resourceManager.getProjectiles().remove(projectile);
+        }
+        int projX = (int)GameCalcuator.pixelsToTiles((int)projectile.getX());
+        int projY = (int)GameCalcuator.pixelsToTiles((int)projectile.getY());
+        int px = (int)GameCalcuator.pixelsToTiles((int)player.getX());
+        int py = (int)GameCalcuator.pixelsToTiles((int)player.getY());
+        if(projX==px&&projY==py)
+        {
+            if(projectile.getAttacker()!=player.getEq()) {
+                projectile.attack(player);
+                resourceManager.getProjectiles().remove(projectile);
+            }
+        }
+        ArrayList<MOB> mobs = resourceManager.getMOBS();
+        for(int i=0;i<mobs.size();i++)
+        {
+            MOB mob = mobs.get(i);
+            int mobX = (int)GameCalcuator.pixelsToTiles((int)mob.getX());
+            int mobY = (int)GameCalcuator.pixelsToTiles((int)mob.getY());
+            if(mobX==projX&&mobY==projY)
+            {
+                if(projectile.getAttacker()!=mob.getEq()) {
+                    projectile.attack(mob);
+                    resourceManager.getProjectiles().remove(projectile);
+                }
+
+            }
+        }
+    }
     public void updateCreature(Creature creature,long elapsedTime)
     {
         float newX = creature.getX()+(creature.getVelX()*elapsedTime);
@@ -271,10 +344,6 @@ public class Main extends GameCore {
                 mob.debug();
             }
         }
-    }
-    public void updateMobs()
-    {
-
     }
     public boolean checkWalkable(int x,int y)
     {
