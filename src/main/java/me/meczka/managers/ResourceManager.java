@@ -7,15 +7,17 @@ import me.meczka.graphics.Animation;
 import me.meczka.interfaces.Eatable;
 import me.meczka.interfaces.Equipable;
 import me.meczka.interfaces.Openable;
-import me.meczka.items.Chleb;
+import me.meczka.items.Food;
 import me.meczka.items.Item;
 import me.meczka.items.Tile;
 import me.meczka.items.Weapon;
 import me.meczka.main.Main;
 import me.meczka.sprites.Creature;
 import me.meczka.sprites.Player;
+import me.meczka.sprites.Projectile;
 import me.meczka.structures.Chest;
 import me.meczka.structures.Structure;
+import me.meczka.utils.Drop;
 import me.meczka.utils.Equipment;
 import me.meczka.utils.Perk;
 import org.json.JSONArray;
@@ -37,6 +39,7 @@ public class ResourceManager {
     public static final Map<String, JSONObject> itemsInfo = new HashMap<String, JSONObject>();
     public static final Map<String,JSONObject> weaponsInfo = new HashMap<>();
     public static final Map<String,JSONObject> mobsInfo = new HashMap<>();
+    private static final Map<String,Image> itemsImages = new HashMap<>();
     //obrazek playera
     private Image player;
     //obrazki struktur
@@ -53,6 +56,7 @@ public class ResourceManager {
     private ArrayList<Structure> structures;
     private ArrayList<Openable> openables;
     private ArrayList<MOB> mobs;
+    private ArrayList<Projectile> projectiles;
     private Vector[] sasiedzi;
     private List<Button> buttons;
     private TileMap map;
@@ -66,6 +70,7 @@ public class ResourceManager {
         openables = new ArrayList<Openable>();
         buttons = new ArrayList<Button>();
         mobs = new ArrayList<MOB>();
+        projectiles = new ArrayList<>();
 
         loadImages();
         loadTiles();
@@ -89,7 +94,7 @@ public class ResourceManager {
 
     public void loadStartingPlayerInv(Player player) {
         player.getEq().setWeapon(GameCalcuator.generateWeapon(weaponsInfo.get("hand")));
-        player.addItem(new Chleb(chlebimg));
+        player.addItem(new Food(chlebimg,"chleb"));
     }
 
     public ArrayList getStructures() {
@@ -99,7 +104,7 @@ public class ResourceManager {
     public ArrayList getOpenables() {
         return openables;
     }
-
+    public ArrayList getProjectiles(){return projectiles;}
     //Laduje Informacje
     public void loadInfo() {
         try {
@@ -155,9 +160,12 @@ public class ResourceManager {
                     anim.addFrame(ratimg,50);
                     Equipment eq = new Equipment();
                     String weaponName = mobsInfo.get(parts[0]).getString("weapon");
+
                     JSONObject wp = weaponsInfo.get(weaponName);
                     eq.setWeapon(GameCalcuator.generateWeapon(wp));
-                    MOB mob = new MOB(anim,mobsInfo.get(parts[0]).getInt("hp"),eq);
+                    JSONArray drops = mobsInfo.get(parts[0]).getJSONArray("drop");
+                    Drop drop = Drop.generateDrop(drops,itemsInfo);
+                    MOB mob = new MOB(anim,mobsInfo.get(parts[0]).getInt("hp"),eq,drop);
                     mob.setX(GameCalcuator.tilesToPixels(Integer.parseInt(parts[1])));
                     mob.setY(GameCalcuator.tilesToPixels(Integer.parseInt(parts[2])));
                     mobs.add(mob);
@@ -195,7 +203,7 @@ public class ResourceManager {
                         Chest chest = new Chest(Integer.parseInt(parts[1]), Integer.parseInt(parts[2]), chestimg);
                         for (int i = 3; i < parts.length; i++) {
                             if (parts[i].equalsIgnoreCase("chleb")) {
-                                chest.addItem(new Chleb(chlebimg));
+                                chest.addItem(new Food(itemsImages.get("chleb"),"chleb"));
                             }
                             else if(parts[i].startsWith("weapon"))
                             {
@@ -280,6 +288,7 @@ public class ResourceManager {
         player = loadImage("player");
         chestimg = loadImage("chest");
         chlebimg = loadImage("chleb");
+        itemsImages.put("chleb",chlebimg);
         button_zjedz = loadImage("button_zjedz");
         button_wyrzuc = loadImage("button_wyrzuc");
         button_zaloz = loadImage("button_zaloz");
@@ -390,6 +399,10 @@ public class ResourceManager {
             return (y/50);
         }
         return -1;
+    }
+    public Image getImageByName(String name)
+    {
+        return  itemsImages.get(name);
     }
 
     public static Image loadImage(String name)

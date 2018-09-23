@@ -18,42 +18,30 @@ import java.util.TimerTask;
  */
 public class Player extends Creature {
     private int foodPoints = 10;
-    private int health = 20;
     private ArrayList inventory;
     private boolean isOnColldown=false;
     private Timer timer;
-    private Equipment eq;
     public Player(Animation anim)
     {
 
-        super(anim);
+        super(anim,new Equipment(),20);
         inventory = new ArrayList();
-        eq = new Equipment();
+
         timer = new Timer();
     }
 
-    public int getHealth() {
-        return health;
-    }
-    public Equipment getEq()
-    {
-        return eq;
-    }
     public void attack(MOB mob)
     {
         if(!isOnColldown) {
-            mob.setHP(mob.getHP() - GameCalcuator.calculateDamage(eq,mob.getEq()));
+            mob.setHp(mob.getHp() - GameCalcuator.calculateDamage(getEq(),mob.getEq()));
             isOnColldown=true;
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
                     isOnColldown=false;
                 }
-            },eq.getWeapon().getAttackSpeed());
+            },getEq().getWeapon().getAttackSpeed());
         }
-    }
-    public void setHealth(int health) {
-        this.health = health;
     }
     public void eat(Eatable meal)
     {

@@ -8,5 +8,7 @@ AAAAAAAAAABA
 AAAAAAAABBBA
 AAAAAAAABABB
 AAAAAAAABABA
-!chest,2,1,chleb,chleb,chleb,weapon;hand
+!chest,2,1,chleb,chleb,chleb,weapon;hand,weapon;wand
 $rat,7,1
+$rat,8,1
+$rat,6,1

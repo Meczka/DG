@@ -1,7 +1,7 @@
 package me.meczka.utils;
 
 public class Perk {
-    public static final int PHYSIC_DAMAGE_RESISTANCE=0;
+    public static final int PHYSIC_DAMAGE_RESISTANCE=0, FIRE_DAMAGE_RESISTANCE=1, WATER_DAMAGE_RESISTANCE = 2;
     private int type,value;
     public Perk(int type,int value)
     {

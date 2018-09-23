@@ -4,6 +4,7 @@ import me.meczka.graphics.Animation;
 import me.meczka.managers.GameCalcuator;
 import me.meczka.sprites.Creature;
 import me.meczka.sprites.Player;
+import me.meczka.utils.Drop;
 import me.meczka.utils.Equipment;
 
 import java.time.temporal.ValueRange;
@@ -14,29 +15,21 @@ import java.util.Vector;
 public class MOB extends Creature {
     public static final int TRIGGER_RANGE=5;
     private int hp;
-    private Equipment eq;
     private boolean isTiggered=false,isOnCooldown=false;
     private Vector droga,droga1;
     private Timer timer;
-    public MOB(Animation anim,int hp,Equipment eq)
+    private Drop drop;
+    public MOB(Animation anim, int hp, Equipment eq, Drop drop)
     {
-        super(anim,true);
+        super(anim,true,eq,hp);
         this.hp=hp;
-        this.eq=eq;
         timer = new Timer();
+        this.drop=drop;
     }
 
-    public Equipment getEq() {
-        return eq;
-    }
-
-    public int getHP()
+    public Drop getDrop()
     {
-        return hp;
-    }
-    public void setHP(int hp)
-    {
-        this.hp=hp;
+        return drop;
     }
     public boolean chceckTrigger(int playerx, int playery, Vector[] sasiedzi,int mapWidth,Player player)
     {
@@ -98,14 +91,16 @@ public class MOB extends Creature {
     public synchronized void attack(Player player)
     {
         if(!isOnCooldown) {
-            player.setHealth(player.getHealth() - eq.getWeapon().getDamage());
+            System.out.println(player.getHp());
+            player.setHp(player.getHp()- getEq().getWeapon().getDamage());
             isOnCooldown=true;
+
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
                     isOnCooldown = false;
                 }
-            }, eq.getWeapon().getAttackSpeed());
+            }, getEq().getWeapon().getAttackSpeed());
         }
     }
     private void DFS(int pos,int cel,boolean[] odwiedzone,Vector[] sasiedzi)

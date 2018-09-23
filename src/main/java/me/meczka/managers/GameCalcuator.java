@@ -1,6 +1,7 @@
 package me.meczka.managers;
 
 import me.meczka.interfaces.Equipable;
+import me.meczka.items.Item;
 import me.meczka.items.Weapon;
 import me.meczka.utils.Equipment;
 import me.meczka.utils.Perk;
@@ -61,6 +62,15 @@ public class GameCalcuator {
         }
         weapon.setPerks(perks);
         return weapon;
+    }
+    public static Item generateItem(JSONObject item)
+    {
+        if(item.getString("name").equalsIgnoreCase("chleb"))
+        {
+
+        }
+        Item retItem = new Item(item.getString("name"),ResourceManager.loadImage(item.getString("name")),item.getInt("weight"),item.getString("description"));
+        return retItem;
     }
     public static int calculateDamage(Equipment attacker, Equipment defender)
     {
