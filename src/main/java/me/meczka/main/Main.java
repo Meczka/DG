@@ -62,6 +62,8 @@ public class Main extends GameCore {
             }
         }
         g.drawImage(player.getImage(),(int)player.getX(),(int)player.getY(),null);
+
+        //Rysowanie struktur
         ArrayList structures=resourceManager.getStructures();
         /*Structure test = (Structure)structures.get(0);
         System.out.println(test.getX());*/
@@ -71,13 +73,15 @@ public class Main extends GameCore {
             Structure s = (Structure) iterator.next();
             g.drawImage(s.getImage(),GameCalcuator.tilesToPixels(s.getX())+10,GameCalcuator.tilesToPixels(s.getY())+10,null);
         }
+        //Rysowanie mobow
         ArrayList<MOB> creatures = resourceManager.getMOBS();
         for(int i=0;i<creatures.size();i++)
         {
             MOB c = creatures.get(i);
            g.drawImage(c.getImage(),(int)c.getX(),(int)c.getY(),null);
-           g.drawString("HP "+c.getHp(),(int)c.getX(),c.getVelY()+70);
+           g.drawString("HP "+c.getHp(),(int)c.getX(),c.getY()+70);
         }
+        //Rysowanie projectile
         ArrayList<Projectile> projectiles = resourceManager.getProjectiles();
         for (int i=0;i<projectiles.size();i++)
         {
@@ -87,7 +91,7 @@ public class Main extends GameCore {
         g.setColor(Color.WHITE);
         g.drawString("HP: "+player.getHp(),100,800);
         ArrayList buttons = (ArrayList) resourceManager.getButtons();
-
+        //Rysowanie ekwipunku
         if(isInventoryOpened)
         {
             resourceManager.generateInventory(openInventory,g);
@@ -122,7 +126,7 @@ public class Main extends GameCore {
         //myszka
         input.setMouseAction(myszka);
     }
-    public void update(long elapsedTime)
+    public synchronized void update(long elapsedTime)
     {
         chceckInput();
         updateCreature(player,elapsedTime);
@@ -139,13 +143,12 @@ public class Main extends GameCore {
             }
             updateCreature(mob,elapsedTime);
         }
-        ArrayList<Projectile> projectiles = resourceManager.getProjectiles();
-        for(int i=0;i<projectiles.size();i++)
+        for(int i=0;i<resourceManager.getProjectiles().size();i++)
         {
-            updateProjectile(projectiles.get(i),elapsedTime);
+            updateProjectile((Projectile) resourceManager.getProjectiles().get(i),elapsedTime);
         }
     }
-    public synchronized void chceckInput()
+    public void chceckInput()
     {
         if(przod.isPressed())
         {
@@ -173,6 +176,7 @@ public class Main extends GameCore {
         }
         if(myszka.isPressed())
         {
+            boolean pressedSomwhere=false;
             int x=myszka.getMousePressX();
             int y=myszka.getMousePressY();
             System.out.println("press x: " + x+ " press y: "+y);
@@ -186,6 +190,7 @@ public class Main extends GameCore {
 
                             player.getInventory().add(openInventory.get(index));
                             openInventory.remove(index);
+                            pressedSomwhere=true;
                         } else {
                             System.out.println(index);
                             System.out.println(openInventory.size());
@@ -193,7 +198,7 @@ public class Main extends GameCore {
                             Button.removeAllButtonsOfType(buttons,Button.TYPE_INFO);
                             resourceManager.generateInfo(openInventory.get(index), index, this);
                             resourceManager.setInfoOpened(true);
-
+                            pressedSomwhere=true;
                         }
                     }
                 }
@@ -216,21 +221,7 @@ public class Main extends GameCore {
                         if(player.getEq().getWeapon().getWeaponType()== Weapon.WEAPON_TYPE_BLADE) {
                             player.attack(mob);
                         }
-                        else if(player.getEq().getWeapon().getWeaponType()==Weapon.WEAPON_TYPE_WAND)
-                        {
-                            float deltaX = Math.abs(x-player.getX());
-                            float deltaY = Math.abs(y-player.getY());
-                            double temp = Math.pow(deltaX,2)+Math.pow(deltaY,2);
-                            double s = Math.sqrt(temp);
-                            double t = s/0.2;
-                            Animation anim = new Animation();
-                            anim.addFrame(ResourceManager.loadImage("rat"),1000);
-                            double velX = deltaX/t;
-                            double velY = deltaY/t;
-                            Projectile proj = new Projectile(anim,(float)velX,(float)velY,(int)player.getX(),(int)player.getY(),player.getEq());
-                            System.out.println("Proj; velX " +velX + ";velY"+velY);
-                            resourceManager.getProjectiles().add(proj);
-                        }
+
                     }
                 }
 
@@ -241,6 +232,7 @@ public class Main extends GameCore {
                 if(x>buttons.get(i).getX()&&x<buttons.get(i).getX()+100&&y>buttons.get(i).getY()&&y<buttons.get(i).getY()+30)
                 {
                     buttons.get(i).run();
+                    pressedSomwhere=true;
                 }
             }
             Iterator iterator= resourceManager.getOpenables().iterator();
@@ -263,7 +255,34 @@ public class Main extends GameCore {
                         isInventoryOpened = true;
                         resourceManager.setInfoOpened(false);
                         openInventory = openable.getInventory();
+                        pressedSomwhere=true;
                     }
+                }
+            }
+            if(!pressedSomwhere)
+            {
+                if(player.getEq().getWeapon().getWeaponType()==Weapon.WEAPON_TYPE_WAND)
+                {
+                    float deltaX = Math.abs(x-player.getX());
+                    float deltaY = Math.abs(y-player.getY());
+                    double temp = Math.pow(deltaX,2)+Math.pow(deltaY,2);
+                    double s = Math.sqrt(temp);
+                    double t = s/0.2;
+                    Animation anim = new Animation();
+                    anim.addFrame(ResourceManager.loadImage("projectile"),1000);
+                    double velX = deltaX/t;
+                    double velY = deltaY/t;
+                    if(player.getX()>x)
+                    {
+                        velX=-velX;
+                    }
+                    if(player.getY()>y)
+                    {
+                        velY=-velY;
+                    }
+                    Projectile proj = new Projectile(anim,(float)velX,(float)velY,(int)player.getX(),(int)player.getY(),player.getEq());
+                    System.out.println("Proj; velX " +velX + ";velY"+velY);
+                    resourceManager.getProjectiles().add(proj);
                 }
             }
 
@@ -288,11 +307,11 @@ public class Main extends GameCore {
             }
         }
     }
-    public void updateProjectile(Projectile projectile, long elapsedTime)
+    public synchronized void updateProjectile(Projectile projectile, long elapsedTime)
     {
         float newX = projectile.getX()+(projectile.getVelX()*elapsedTime);
         float newY = projectile.getY()+(projectile.getVelY()*elapsedTime);
-        if(checkWalkable((int)newX,(int)newY))
+        if(checkWalkable((int)newX,(int)newY,10))
         {
             projectile.setX(newX);
             projectile.setY(newY);
@@ -323,6 +342,7 @@ public class Main extends GameCore {
                 if(projectile.getAttacker()!=mob.getEq()) {
                     projectile.attack(mob);
                     resourceManager.getProjectiles().remove(projectile);
+                    break;
                 }
 
             }
@@ -332,7 +352,7 @@ public class Main extends GameCore {
     {
         float newX = creature.getX()+(creature.getVelX()*elapsedTime);
         float newY = creature.getY()+(creature.getVelY()*elapsedTime);
-        if(checkWalkable((int)newX,(int)newY))
+        if(checkWalkable((int)newX,(int)newY,30))
         {
             creature.setX(newX);
             creature.setY(newY);
@@ -345,13 +365,13 @@ public class Main extends GameCore {
             }
         }
     }
-    public boolean checkWalkable(int x,int y)
+    public boolean checkWalkable(int x,int y,int size)
     {
 
         int x1=(int)GameCalcuator.pixelsToTiles(x);
         int y1=(int)GameCalcuator.pixelsToTiles(y);
-        int x2=(int)GameCalcuator.pixelsToTiles(x+30);
-        int y2=(int)GameCalcuator.pixelsToTiles(y+30);
+        int x2=(int)GameCalcuator.pixelsToTiles(x+size);
+        int y2=(int)GameCalcuator.pixelsToTiles(y+size);
         Tile tile = resourceManager.getMap().getTile(x1,y1);
         Tile tile1 = resourceManager.getMap().getTile(x2,y2);
         Tile tile2 = resourceManager.getMap().getTile(x2,y1);

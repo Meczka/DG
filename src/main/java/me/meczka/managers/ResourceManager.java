@@ -393,7 +393,7 @@ public class ResourceManager {
     }
     public int getIndexByPixels(int x,int y)
     {
-        if(x>=0&&x<=300)
+        if(x>=0&&x<=300&&y>=100)
         {
             y-=100;
             return (y/50);
