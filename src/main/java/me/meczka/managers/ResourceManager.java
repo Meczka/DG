@@ -48,7 +48,7 @@ public class ResourceManager {
     private Image chlebimg;
     private boolean isInfoOpened=false;
     //obrazki przyciskow
-    private Image button_zjedz,button_wyrzuc,button_zaloz;
+    private Image button_zjedz,button_wyrzuc,button_zaloz,button_zdejmij;
     //ratimg(temp)
     private Image ratimg;
     //Listy
@@ -292,6 +292,7 @@ public class ResourceManager {
         button_zjedz = loadImage("button_zjedz");
         button_wyrzuc = loadImage("button_wyrzuc");
         button_zaloz = loadImage("button_zaloz");
+        button_zdejmij = loadImage("button_zdejmij");
         ratimg = loadImage("rat");
     }
 
@@ -315,6 +316,41 @@ public class ResourceManager {
         }
 
     }
+    public void generateEquipment(Equipment eq,Graphics2D g)
+    {
+        int offset=100;
+        g.setColor(Color.GRAY);
+        g.fillRect(300,offset,50,200);
+        Item item;
+        if(eq.getWeapon()!=null) {
+            item = eq.getWeapon();
+            g.drawImage(item.getIcon(), 310, 110, null);
+        }
+        if(eq.getHelmet()!=null) {
+            item = eq.getHelmet();
+            g.drawImage(item.getIcon(), 310, 160, null);
+        }
+        if(eq.getChest()!=null) {
+            item = eq.getChest();
+            g.drawImage(item.getIcon(), 310, 210, null);
+        }
+        if(eq.getPants()!=null) {
+            item = eq.getPants();
+            g.drawImage(item.getIcon(), 310, 260, null);
+        }
+    }
+    public int getEqIndexByPixels(int x,int y)
+    {
+        if(x>=300&&x<=350&&y>=100&&y<=260)
+        {
+            y-=100;
+            return y/50;
+        }
+        else
+        {
+            return -1;
+        }
+    }
     public void generateInfo(Item item,int index,Main main)
     {
         infoIndex=index;
@@ -323,7 +359,12 @@ public class ResourceManager {
         int offset = 100+(infoIndex*50);
         offset+=60;
         buttons.add(new Button(button_wyrzuc,leftOffset,offset+20,Button.TYPE_INFO,()->{
-            main.player.getInventory().remove(item);
+            if(main.player.getInventory().contains(item)) {
+                main.player.getInventory().remove(item);
+            }else if(main.player.getEq().asItemList().contains(item))
+            {
+                main.player.getEq().remove(item);
+            }
             isInfoOpened=false;
             Button.removeAllButtonsOfType((ArrayList<Button>) buttons,Button.TYPE_INFO);
 
@@ -340,17 +381,28 @@ public class ResourceManager {
             ));
             //buttons.add(new ItemButton(button_zjedz,infoItem,leftOffset,offset+20,Button.TYPE_INFO));
         }
-        if(infoItem instanceof Equipable)
-        {
-            buttons.add(new Button(button_zaloz,leftOffset,offset+20,Button.TYPE_INFO,()->
+        if(infoItem instanceof Equipable) {
+            if (main.player.getEq().asItemList().contains(item))
             {
-               Equipable e = (Equipable)item;
-               e.equip(main.player);
-               main.player.getInventory().remove(item);
-               Button.removeAllButtonsOfType((ArrayList<Button>)buttons,Button.TYPE_INFO);
-               isInfoOpened=false;
+                buttons.add(new Button(button_zdejmij,leftOffset,offset + 20,Button.TYPE_INFO,() ->
+                {
+                    Equipable e = (Equipable) item;
+                    e.dequip(main.player);
+                    Button.removeAllButtonsOfType((ArrayList<Button>) buttons,Button.TYPE_INFO);
+                    isInfoOpened=false;
+                }));
             }
-            ));
+            else {
+                buttons.add(new Button(button_zaloz, leftOffset, offset + 20, Button.TYPE_INFO, () ->
+                {
+                    Equipable e = (Equipable) item;
+                    e.equip(main.player);
+                    main.player.getInventory().remove(item);
+                    Button.removeAllButtonsOfType((ArrayList<Button>) buttons, Button.TYPE_INFO);
+                    isInfoOpened = false;
+                }
+                ));
+            }
         }
     }
     public void generateInfo(Graphics2D g)

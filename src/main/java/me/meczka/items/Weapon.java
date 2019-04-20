@@ -40,6 +40,11 @@ public class Weapon extends Item implements Equipable {
         }
         eq.setWeapon(this);
     }
+    public void dequip(Player player)
+    {
+        player.addItem(player.getEq().getWeapon());
+        player.getEq().setWeapon(null);
+    }
 
     public int getRange() {
         return range;

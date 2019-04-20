@@ -1,7 +1,10 @@
 package me.meczka.utils;
 
 import me.meczka.items.Armor;
+import me.meczka.items.Item;
 import me.meczka.items.Weapon;
+
+import java.util.ArrayList;
 
 public class Equipment {
     private Weapon weapon;
@@ -37,5 +40,48 @@ public class Equipment {
 
     public void setPants(Armor pants) {
         this.pants = pants;
+    }
+    public Item ItemByIndex(int index)
+    {
+        switch (index)
+        {
+            case 0:
+                return weapon;
+            case 1:
+                return helmet;
+            case 2:
+                return chest;
+            case 3:
+                return pants;
+        }
+        return null;
+    }
+    public ArrayList<Item> asItemList()
+    {
+        ArrayList<Item> eq = new ArrayList<Item>();
+        eq.add(weapon);
+        eq.add(helmet);
+        eq.add(chest);
+        eq.add(pants);
+        return eq;
+    }
+    public void remove(Item item)
+    {
+        if(item==weapon)
+        {
+            weapon=null;
+        }
+        else if(item==helmet)
+        {
+            helmet=null;
+        }
+        else if(item==chest)
+        {
+            chest=null;
+        }
+        else if(item==pants)
+        {
+            pants=null;
+        }
     }
 }

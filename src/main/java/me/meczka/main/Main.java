@@ -95,6 +95,10 @@ public class Main extends GameCore {
         if(isInventoryOpened)
         {
             resourceManager.generateInventory(openInventory,g);
+            if(openInventory==player.getInventory())
+            {
+                resourceManager.generateEquipment(player.getEq(),g);
+            }
         }
         if(resourceManager.isInfoOpened())
         {
@@ -202,6 +206,22 @@ public class Main extends GameCore {
                         }
                     }
                 }
+                //Sprawdzanie czy kliknięto przedmiot w eq
+                if(openInventory==player.getInventory())
+                {
+                    index = resourceManager.getEqIndexByPixels(x,y);
+                    if(index!=-1)
+                    {
+                        pressedSomwhere=true;
+                        if(player.getEq().ItemByIndex(index)!=null) {
+                            ArrayList<Button> buttons = (ArrayList<Button>) resourceManager.getButtons();
+                            Button.removeAllButtonsOfType(buttons, Button.TYPE_INFO);
+                            resourceManager.generateInfo(player.getEq().ItemByIndex(index), index, this);
+                            resourceManager.setInfoOpened(true);
+                        }
+                    }
+                }
+
             }
             ArrayList<MOB> mobs= resourceManager.getMOBS();
             for(int i=0;i<mobs.size();i++) {
@@ -261,28 +281,27 @@ public class Main extends GameCore {
             }
             if(!pressedSomwhere)
             {
-                if(player.getEq().getWeapon().getWeaponType()==Weapon.WEAPON_TYPE_WAND)
-                {
-                    float deltaX = Math.abs(x-player.getX());
-                    float deltaY = Math.abs(y-player.getY());
-                    double temp = Math.pow(deltaX,2)+Math.pow(deltaY,2);
-                    double s = Math.sqrt(temp);
-                    double t = s/0.2;
-                    Animation anim = new Animation();
-                    anim.addFrame(ResourceManager.loadImage("projectile"),1000);
-                    double velX = deltaX/t;
-                    double velY = deltaY/t;
-                    if(player.getX()>x)
-                    {
-                        velX=-velX;
+                if(player.getEq().getWeapon()!=null) {
+                    if (player.getEq().getWeapon().getWeaponType() == Weapon.WEAPON_TYPE_WAND) {
+                        float deltaX = Math.abs(x - player.getX());
+                        float deltaY = Math.abs(y - player.getY());
+                        double temp = Math.pow(deltaX, 2) + Math.pow(deltaY, 2);
+                        double s = Math.sqrt(temp);
+                        double t = s / 0.2;
+                        Animation anim = new Animation();
+                        anim.addFrame(ResourceManager.loadImage("projectile"), 1000);
+                        double velX = deltaX / t;
+                        double velY = deltaY / t;
+                        if (player.getX() > x) {
+                            velX = -velX;
+                        }
+                        if (player.getY() > y) {
+                            velY = -velY;
+                        }
+                        Projectile proj = new Projectile(anim, (float) velX, (float) velY, (int) player.getX(), (int) player.getY(), player.getEq());
+                        System.out.println("Proj; velX " + velX + ";velY" + velY);
+                        resourceManager.getProjectiles().add(proj);
                     }
-                    if(player.getY()>y)
-                    {
-                        velY=-velY;
-                    }
-                    Projectile proj = new Projectile(anim,(float)velX,(float)velY,(int)player.getX(),(int)player.getY(),player.getEq());
-                    System.out.println("Proj; velX " +velX + ";velY"+velY);
-                    resourceManager.getProjectiles().add(proj);
                 }
             }
 
